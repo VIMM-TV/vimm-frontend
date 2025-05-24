@@ -9,17 +9,17 @@ function App() {
   
   // Mock user data - in a real app this would come from authentication
   const userData = {
-    username: 'chirenonhive',
-    avatar: 'https://avatars.githubusercontent.com/u/44252697?v=4'
+    username: 'chiren',
+    avatar: 'https://images.hive.blog/u/chiren/avatar'
   };
   
   // Mock active streams data - in a real app this would come from an API
   const activeStreams = [
-    { id: 1, username: 'gamer123', title: 'Playing Fortnite', viewers: 1243, avatar: 'https://via.placeholder.com/40' },
-    { id: 2, username: 'streamqueen', title: 'Just Chatting', viewers: 856, avatar: 'https://via.placeholder.com/40' },
-    { id: 3, username: 'proplayer', title: 'Ranked matches', viewers: 2105, avatar: 'https://via.placeholder.com/40' },
-    { id: 4, username: 'artcreator', title: 'Digital painting', viewers: 437, avatar: 'https://via.placeholder.com/40' },
-    { id: 5, username: 'musiclover', title: 'Piano practice', viewers: 691, avatar: 'https://via.placeholder.com/40' }
+    { id: 1, username: 'gamer123', title: 'Playing Fortnite', viewers: 1243, avatar: 'https://i.pravatar.cc/40?u=gamer123' },
+    { id: 2, username: 'streamqueen', title: 'Just Chatting', viewers: 856, avatar: 'https://i.pravatar.cc/40?u=streamqueen' },
+    { id: 3, username: 'proplayer', title: 'Ranked matches', viewers: 2105, avatar: 'https://i.pravatar.cc/40?u=proplayer' },
+    { id: 4, username: 'artcreator', title: 'Digital painting', viewers: 437, avatar: 'https://i.pravatar.cc/40?u=artcreator' },
+    { id: 5, username: 'musiclover', title: 'Piano practice', viewers: 691, avatar: 'https://i.pravatar.cc/40?u=musiclover' }
   ];
   
   // Mock login handler - in a real app this would integrate with auth system

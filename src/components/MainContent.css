@@ -1,0 +1,30 @@
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #0e0e10;
+  color: #efeff1;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.placeholder-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.content-box {
+  background-color: #18181b;
+  padding: 20px;
+  border-radius: 6px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #ff7c0a;
+}

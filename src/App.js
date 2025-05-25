@@ -25,7 +25,7 @@ function App() {
         setError(null);
         
         //const response = await fetch(config.core.server + config.core.endpoints.streams);
-        const response = await fetch("http://localhost:3000/api/streams");
+        const response = await fetch(config.core.server + config.core.endpoints.streams);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

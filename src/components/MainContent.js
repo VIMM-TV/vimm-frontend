@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './MainContent.css';
 import config from '../config/default';
 
-function MainContent({ activeStreams, loading, error }) {
+function MainContent({ activeStreams, loading, error, onRefresh }) {
   const [featuredStream, setFeaturedStream] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Select a random stream to feature when streams are loaded
+  // Memoize the stream data to prevent unnecessary re-renders
+  const memoizedStreams = useMemo(() => {
+    return activeStreams;
+  }, [JSON.stringify(activeStreams)]);
+
+  // Only set featured stream once during initial load
   useEffect(() => {
-    if (activeStreams && activeStreams.length > 0) {
-      const randomIndex = Math.floor(Math.random() * activeStreams.length);
-      setFeaturedStream(activeStreams[randomIndex]);
+    if (memoizedStreams && memoizedStreams.length > 0 && !isInitialized) {
+      const randomIndex = Math.floor(Math.random() * memoizedStreams.length);
+      setFeaturedStream(memoizedStreams[randomIndex]);
+      setIsInitialized(true);
     }
-  }, [activeStreams]);
+  }, [memoizedStreams, isInitialized]);
+
+  // Function to manually change featured stream
+  const changeFeaturedStream = (stream) => {
+    setFeaturedStream(stream);
+  };
 
   // Function to get thumbnail URL or fallback
   const getThumbnailUrl = (stream) => {
@@ -27,6 +39,22 @@ function MainContent({ activeStreams, loading, error }) {
     // Use the config server URL for vimm-core
     return `${config.core.server}/player.html?user=${encodeURIComponent(stream.username)}`;
   };
+
+  // Memoize the iframe to prevent re-rendering when props don't actually change
+  const PlayerIframe = useMemo(() => {
+    if (!featuredStream) return null;
+    
+    return (
+      <iframe
+        key={featuredStream.id} // Use stream ID as key to force re-render only when stream actually changes
+        src={getPlayerUrl(featuredStream)}
+        className="player-iframe"
+        frameBorder="0"
+        allowFullScreen
+        title={`${featuredStream.username}'s stream`}
+      />
+    );
+  }, [featuredStream?.id, featuredStream?.username]);
 
   if (loading) {
     return (
@@ -58,17 +86,17 @@ function MainContent({ activeStreams, loading, error }) {
       {/* Featured Stream Section */}
       {featuredStream && (
         <div className="featured-section">
-          <h2 className="featured-title">Featured Stream</h2>
+          <div className="featured-header">
+            <h2 className="featured-title">Featured Stream</h2>
+            {onRefresh && (
+              <button onClick={onRefresh} className="refresh-button" title="Refresh streams">
+                🔄 Refresh
+              </button>
+            )}
+          </div>
           <div className="featured-stream">
             <div className="featured-player">
-              {/* Embed the vimm-core player */}
-              <iframe
-                src={getPlayerUrl(featuredStream)}
-                className="player-iframe"
-                frameBorder="0"
-                allowFullScreen
-                title={`${featuredStream.username}'s stream`}
-              />
+              {PlayerIframe}
             </div>
             <div className="featured-info">
               <div className="featured-streamer">
@@ -96,12 +124,12 @@ function MainContent({ activeStreams, loading, error }) {
       {/* All Streams Section */}
       <div className="streams-section">
         <h2 className="section-title">Live Streams</h2>
-        {activeStreams && activeStreams.length > 0 ? (
+        {memoizedStreams && memoizedStreams.length > 0 ? (
           <div className="streams-grid">
-            {activeStreams.map(stream => (
+            {memoizedStreams.map(stream => (
               <div key={stream.id} className="stream-card" onClick={() => {
-                // Open stream in new tab/window
-                window.open(getPlayerUrl(stream), '_blank');
+                // Change featured stream when clicking on a stream card
+                changeFeaturedStream(stream);
               }}>
                 <div className="stream-thumbnail-container">
                   <img 

@@ -6,25 +6,385 @@
   color: #efeff1;
 }
 
-h1 {
+/* Loading and Error States */
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ff7c0a;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
   margin-bottom: 20px;
 }
 
-.placeholder-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 30px;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.content-box {
-  background-color: #18181b;
-  padding: 20px;
+.retry-button {
+  background-color: #ff7c0a;
+  color: white;
+  border: none;
+  padding: 10px 20px;
   border-radius: 6px;
-  height: 200px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.retry-button:hover {
+  background-color: #e56b00;
+}
+
+/* Featured Stream Section */
+.featured-section {
+  margin-bottom: 40px;
+}
+
+.featured-title {
+  font-size: 24px;
+  margin-bottom: 20px;
   color: #ff7c0a;
+  font-weight: bold;
+}
+
+.featured-stream {
+  background-color: #18181b;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  width: 600px
+}
+
+.featured-player {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.featured-player iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    overflow: hidden !important;
+    scrollbar-width: none !important;  /* Firefox */
+    -ms-overflow-style: none !important;  /* IE and Edge */
+}
+
+.featured-player iframe::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;  /* Chrome, Safari and Opera */
+}
+
+.player-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.featured-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.player-placeholder:hover .player-overlay {
+  opacity: 1;
+}
+
+.play-button {
+  background-color: rgba(255, 124, 10, 0.9);
+  color: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin-left: 4px; /* Optical centering */
+}
+
+.live-indicator {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background-color: #ff0000;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.featured-info {
+  padding: 20px;
+}
+
+.featured-streamer {
+  display: flex;
+  align-items: center;
+}
+
+.featured-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.featured-details {
+  flex: 1;
+}
+
+.featured-username {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  color: #ff7c0a;
+}
+
+.featured-stream-title {
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: #efeff1;
+}
+
+.featured-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: #adadb8;
+}
+
+.viewer-count::before {
+  content: "👥 ";
+}
+
+.category::before {
+  content: "🏷️ ";
+}
+
+/* Streams Grid Section */
+.streams-section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #efeff1;
+  font-weight: bold;
+}
+
+.streams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.stream-card {
+  background-color: #18181b;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.stream-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.stream-thumbnail-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background-color: #000;
+}
+
+.stream-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.live-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #ff0000;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.viewer-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.viewer-badge::before {
+  content: "👥 ";
+}
+
+.stream-card-info {
+  padding: 15px;
+}
+
+.stream-header {
+  display: flex;
+  align-items: flex-start;
+}
+
+.stream-card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.stream-text-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.stream-card-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 6px 0;
+  color: #efeff1;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.stream-card-username {
+  font-size: 13px;
+  color: #adadb8;
+  margin: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.stream-card-category {
+  font-size: 12px;
+  color: #adadb8;
+  margin: 0;
+}
+
+/* No Streams State */
+.no-streams {
+  text-align: center;
+  padding: 60px 20px;
+  color: #adadb8;
+}
+
+.no-streams h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #efeff1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 15px;
+  }
+  
+  .streams-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .featured-title {
+    font-size: 20px;
+  }
+  
+  .featured-info {
+    padding: 15px;
+  }
+  
+  .featured-avatar {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .featured-username {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 10px;
+  }
+  
+  .play-button {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+  
+  .featured-streamer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .featured-avatar {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .featured-stats {
+    flex-wrap: wrap;
+  }
 }

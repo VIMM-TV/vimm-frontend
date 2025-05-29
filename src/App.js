@@ -96,7 +96,11 @@ function App() {
       />
       <div className="content-container">
         <Sidebar activeStreams={activeStreams} />
-        <MainContent />
+        <MainContent 
+          activeStreams={activeStreams}
+          loading={loading}
+          error={error}
+        />
       </div>
     </div>
   );

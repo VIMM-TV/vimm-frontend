@@ -16,7 +16,7 @@ const defaultConfig = {
   
   // vimm-core server configuration
   core: {
-    server: 'http://localhost:3000', // Default local development server
+    server: 'http://85.239.54.212:3000', // Default demo server hosted by Chiren
     endpoints: {
       streams: '/api/streams', // Get active streams
       streamDetails: '/api/streams/:streamId', // Get specific stream details
@@ -25,7 +25,7 @@ const defaultConfig = {
     },
     // Media paths
     media: {
-      hls: '/live/:streamId/index.m3u8' // HLS stream path
+      hls: '/live/:streamId/master.m3u8' // HLS stream path
     }
   }
 };

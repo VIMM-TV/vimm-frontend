@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './MainContent.css';
-import config from '../config/default';
+import config from '../config';
 
 function MainContent({ activeStreams, loading, error, onRefresh }) {
   const [featuredStream, setFeaturedStream] = useState(null);

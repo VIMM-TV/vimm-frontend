@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
+import WatchPage from './pages/WatchPage';
 import config from './config/default';
 
-function App() {
+function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [activeStreams, setActiveStreams] = useState([]); // For MainContent (stable)
-  const [sidebarStreams, setSidebarStreams] = useState([]); // For Sidebar (updates every 30s)
+  const [activeStreams, setActiveStreams] = useState([]);
+  const [sidebarStreams, setSidebarStreams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
+  const location = useLocation();
+  const isWatchPage = location.pathname === '/watch';
   
   // Mock user data - in a real app this would come from authentication
   const userData = {
@@ -39,8 +44,8 @@ function App() {
         id: stream.id,
         username: stream.username,
         title: stream.title || 'Untitled Stream',
-        viewers: Math.floor(Math.random() * 2000) + 100, // TODO: Add viewer count to API
-        avatar: `https://images.hive.blog/u/${stream.username}/avatar`, // TODO: Add avatar URL to API
+        viewers: Math.floor(Math.random() * 2000) + 100,
+        avatar: `https://images.hive.blog/u/${stream.username}/avatar`,
         thumbnail: stream.thumbnail,
         isLive: stream.isLive,
         streamPath: stream.streamPath,
@@ -50,16 +55,14 @@ function App() {
         category: stream.category
       }));
       
-      // Always update sidebar streams
       setSidebarStreams(transformedStreams);
       
-      // Only update main content streams on initial load
       if (isInitialLoad) {
         setActiveStreams(transformedStreams);
         setIsInitialLoad(false);
       }
       
-      console.log('Fetched streams for sidebar:', transformedStreams); // Debugging line
+      console.log('Fetched streams for sidebar:', transformedStreams);
     } catch (err) {
       console.error('Failed to fetch streams:', err);
       setError(err.message);
@@ -91,7 +94,7 @@ function App() {
     
     // Set up polling to refresh sidebar streams periodically
     const interval = setInterval(() => {
-      if (!isInitialLoad) { // Only poll after initial load is complete
+      if (!isInitialLoad) {
         fetchStreams();
       }
     }, 30000); // Refresh every 30 seconds
@@ -99,7 +102,7 @@ function App() {
     return () => clearInterval(interval);
   }, [fetchStreams, isInitialLoad]);
 
-  // Mock login handler - in a real app this would integrate with auth system
+  // Mock login handler
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
@@ -122,16 +125,32 @@ function App() {
         onLogin={handleLogin}
         onLogout={handleLogout}
       />
-      <div className="content-container">
-        <Sidebar activeStreams={sidebarStreams} />
-        <MainContent 
-          activeStreams={activeStreams}
-          loading={loading}
-          error={error}
-          onRefresh={refreshMainContent}
-        />
+      <div className={`content-container ${isWatchPage ? 'watch-mode' : ''}`}>
+        {!isWatchPage && <Sidebar activeStreams={sidebarStreams} />}
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <MainContent 
+                activeStreams={activeStreams}
+                loading={loading}
+                error={error}
+                onRefresh={refreshMainContent}
+              />
+            } 
+          />
+          <Route path="/watch" element={<WatchPage />} />
+        </Routes>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 

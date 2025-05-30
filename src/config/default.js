@@ -4,7 +4,7 @@
 const defaultConfig = {
   // vimm-chat server configuration
   chat: {
-    server: 'http://localhost:3001', // Default local development server
+    server: 'https://vimmcore.webhop.me:4443', // Default local development server
     endpoints: {
       socket: '/socket.io', // Socket.IO connection
       messages: '/api/chat/messages/:hiveAccount', // Get/post chat messages 
@@ -16,7 +16,7 @@ const defaultConfig = {
   
   // vimm-core server configuration
   core: {
-    server: 'http://85.239.54.212:3000', // Default demo server hosted by Chiren
+    server: 'https://vimmcore.webhop.me', // Default demo server hosted by Chiren
     endpoints: {
       streams: '/api/streams', // Get active streams
       streamDetails: '/api/streams/:streamId', // Get specific stream details

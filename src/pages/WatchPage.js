@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './WatchPage.css';
 import config from '../config/default';
+import CustomPlayer from '../components/CustomPlayer';
 
 function WatchPage() {
   const [searchParams] = useSearchParams();
@@ -54,12 +55,7 @@ function WatchPage() {
     }
   }, [isFullscreen, isMobile, isLandscape]);
 
-  // Generate player and chat URLs
-  const playerUrl = useMemo(() => {
-    if (!username) return null;
-    return `${config.core.server}/player.html?user=${encodeURIComponent(username)}`;
-  }, [username]);
-
+  // Generate chat URL
   const chatUrl = useMemo(() => {
     if (!username) return null;
     return `${config.chat.server}${config.chat.embedPath.replace(':hiveAccount', encodeURIComponent(username))}`;
@@ -82,12 +78,11 @@ function WatchPage() {
         {/* Stream Container */}
         <div className="stream-container">
           <div className="stream-player">
-            <iframe
-              src={playerUrl}
+            <CustomPlayer
+              username={username}
               className="player-iframe"
-              frameBorder="0"
-              allowFullScreen
-              title={`${username}'s stream`}
+              onReady={() => console.log('Player ready')}
+              onError={(error) => console.error('Player error:', error)}
             />
             {isMobile && (
               <button 

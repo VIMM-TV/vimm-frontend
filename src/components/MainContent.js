@@ -9,7 +9,7 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
   // Memoize the stream data to prevent unnecessary re-renders
   const memoizedStreams = useMemo(() => {
     return activeStreams;
-  }, [JSON.stringify(activeStreams)]);
+  }, [activeStreams]);
 
   // Only set featured stream once during initial load
   useEffect(() => {
@@ -54,7 +54,7 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
         title={`${featuredStream.username}'s stream`}
       />
     );
-  }, [featuredStream?.id, featuredStream?.username]);
+  }, [featuredStream]);
 
   if (loading) {
     return (

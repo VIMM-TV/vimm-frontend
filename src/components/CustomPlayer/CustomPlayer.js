@@ -50,7 +50,7 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         
         // Assuming the API returns the m3u8 URL in the response
         // Adjust this based on the actual API response structure
-        let m3u8Url = data.url || data.stream_url || data.path;
+        let m3u8Url = data.rtmpPath;
         
         // If the response doesn't contain a full URL, construct it using config
         if (m3u8Url && !m3u8Url.startsWith('http')) {

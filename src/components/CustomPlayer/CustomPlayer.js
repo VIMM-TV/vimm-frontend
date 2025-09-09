@@ -50,12 +50,7 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         
         // Assuming the API returns the m3u8 URL in the response
         // Adjust this based on the actual API response structure
-        let m3u8Url = data.rtmpPath;
-        
-        // If the response doesn't contain a full URL, construct it using config
-        if (m3u8Url && !m3u8Url.startsWith('http')) {
-          m3u8Url = `${config.core.server}${m3u8Url}`;
-        }
+        let m3u8Url = 'https://www.vimm.tv/live/' + data.streamId + '/master.m3u8';
         
         if (!m3u8Url) {
           throw new Error('No stream URL found in response');

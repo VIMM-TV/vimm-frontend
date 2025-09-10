@@ -62,10 +62,38 @@
   color: white;
   font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .login-button:hover {
   background-color: #df7110;
+}
+
+.auth-loading {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid #ff7c0a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .user-avatar {
@@ -77,6 +105,15 @@
 
 .user-menu {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e5e7eb;
 }
 
 .dropdown-menu {

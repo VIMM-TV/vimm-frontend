@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import './CustomPlayer.css';
-import config from '../../config/default';
 
 function CustomPlayer({ username, className, style, onReady, onError }) {
   const videoRef = useRef(null);

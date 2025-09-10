@@ -1,4 +1,5 @@
 import React from 'react';
+import FollowButton from './auth/FollowButton';
 import './Sidebar.css';
 
 function Sidebar({ activeStreams }) {
@@ -37,6 +38,13 @@ function Sidebar({ activeStreams }) {
                 <div className="stream-username">{stream.username}</div>
                 <div className="stream-title">{stream.title}</div>
                 <div className="stream-viewers">{stream.viewers} viewers</div>
+              </div>
+              <div className="stream-actions">
+                <FollowButton 
+                  username={stream.username} 
+                  size="small"
+                  className="sidebar-follow-btn"
+                />
               </div>
             </div>
           ))}

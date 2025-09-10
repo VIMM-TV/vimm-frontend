@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
+import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
@@ -8,7 +9,6 @@ import WatchPage from './pages/WatchPage';
 import config from './config/default';
 
 function AppContent() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeStreams, setActiveStreams] = useState([]);
   const [sidebarStreams, setSidebarStreams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,12 +17,6 @@ function AppContent() {
   
   const location = useLocation();
   const isWatchPage = location.pathname === '/watch';
-  
-  // Mock user data - in a real app this would come from authentication
-  const userData = {
-    username: 'chiren',
-    avatar: 'https://images.hive.blog/u/chiren/avatar'
-  };
   
   // Fetch streams from API
   const fetchStreams = useCallback(async () => {
@@ -102,16 +96,6 @@ function AppContent() {
     return () => clearInterval(interval);
   }, [fetchStreams, isInitialLoad]);
 
-  // Mock login handler
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-  
-  // Mock logout handler
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
-
   // Function to refresh main content manually
   const refreshMainContent = useCallback(() => {
     setActiveStreams([...sidebarStreams]);
@@ -119,12 +103,7 @@ function AppContent() {
 
   return (
     <div className="App">
-      <Navbar 
-        isLoggedIn={isLoggedIn} 
-        userData={userData}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
-      />
+      <Navbar />
       <div className={`content-container ${isWatchPage ? 'watch-mode' : ''}`}>
         {!isWatchPage && <Sidebar activeStreams={sidebarStreams} />}
         <Routes>
@@ -148,9 +127,11 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

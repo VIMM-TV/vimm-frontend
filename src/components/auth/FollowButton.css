@@ -1,0 +1,247 @@
+/* Follow Button Component Styles */
+
+.follow-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.follow-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Size variants */
+.follow-button--small {
+  padding: 6px 12px;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.follow-button--medium {
+  padding: 8px 16px;
+  font-size: 14px;
+  gap: 6px;
+}
+
+.follow-button--large {
+  padding: 12px 20px;
+  font-size: 16px;
+  gap: 8px;
+}
+
+/* State variants */
+.follow-button--not-following {
+  background-color: #3b82f6;
+  color: white;
+  border: 1px solid #3b82f6;
+}
+
+.follow-button--not-following:hover:not(:disabled) {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.follow-button--following {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.follow-button--following:hover:not(:disabled) {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.follow-button--following:hover:not(:disabled) .follow-button__icon {
+  transform: scale(1.1);
+}
+
+.follow-button--following:hover:not(:disabled) .follow-button__icon::before {
+  content: '×';
+}
+
+.follow-button--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.follow-button--loading {
+  cursor: wait;
+}
+
+/* Icon styles */
+.follow-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.follow-button--small .follow-button__icon {
+  width: 14px;
+  height: 14px;
+  font-size: 12px;
+}
+
+.follow-button--large .follow-button__icon {
+  width: 18px;
+  height: 18px;
+  font-size: 16px;
+}
+
+/* Spinner styles */
+.follow-button__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.follow-button--small .follow-button__spinner {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+}
+
+.follow-button--large .follow-button__spinner {
+  width: 16px;
+  height: 16px;
+}
+
+/* Count badge */
+.follow-button__count {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.follow-button--not-following .follow-button__count {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.follow-button--following .follow-button__count {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: inherit;
+}
+
+/* Error message */
+.follow-button-error {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  margin-top: 4px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.follow-button-error::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #fecaca;
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .follow-button {
+    min-width: 80px;
+  }
+  
+  .follow-button--large {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .follow-button-error {
+    font-size: 11px;
+    max-width: 200px;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .follow-button--not-following {
+    border-width: 2px;
+  }
+  
+  .follow-button--following {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .follow-button {
+    transition: none;
+  }
+  
+  .follow-button__icon {
+    transition: none;
+  }
+  
+  .follow-button__spinner {
+    animation: none;
+  }
+  
+  .follow-button-error {
+    animation: none;
+  }
+}

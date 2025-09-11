@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import HiveLogin from './auth/HiveLogin';
 import './Navbar.css';
 
-function Navbar({ isLoggedIn, userData, onLogin, onLogout }) {
+function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isAuthenticated, user, logout, loading } = useAuth();
   
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -12,6 +16,30 @@ function Navbar({ isLoggedIn, userData, onLogin, onLogout }) {
     e.preventDefault();
     // Handle search logic here
     console.log('Searching for:', searchQuery);
+  };
+
+  const handleLogin = () => {
+    setShowLoginModal(true);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const closeLoginModal = () => {
+    setShowLoginModal(false);
+  };
+
+  // Get avatar URL for authenticated user
+  const getAvatarUrl = () => {
+    if (user) {
+      return `https://images.hive.blog/u/${user}/avatar`;
+    }
+    return null;
   };
 
   return (
@@ -36,25 +64,34 @@ function Navbar({ isLoggedIn, userData, onLogin, onLogout }) {
       </div>
       
       <div className="navbar-right">
-        {isLoggedIn ? (
+        {loading ? (
+          <div className="auth-loading">
+            <span className="loading-spinner"></span>
+          </div>
+        ) : isAuthenticated ? (
           <div className="user-menu">
             <img 
-              src={userData.avatar} 
-              alt={`${userData.username}'s avatar`} 
+              src={getAvatarUrl()} 
+              alt={`${user}'s avatar`} 
               className="user-avatar" 
             />
+            <span className="username">@{user}</span>
             <div className="dropdown-menu">
               <div className="dropdown-item">Profile</div>
               <div className="dropdown-item">Settings</div>
-              <div className="dropdown-item" onClick={onLogout}>Logout</div>
+              <div className="dropdown-item" onClick={handleLogout}>Logout</div>
             </div>
           </div>
         ) : (
-          <button className="login-button" onClick={onLogin}>
-            Login
+          <button className="login-button" onClick={handleLogin}>
+            🔑 Login with Hive
           </button>
         )}
       </div>
+      
+      {showLoginModal && (
+        <HiveLogin onClose={closeLoginModal} />
+      )}
     </nav>
   );
 }

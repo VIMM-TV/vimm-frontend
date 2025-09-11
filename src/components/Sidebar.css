@@ -54,10 +54,12 @@
 
 .stream-item {
   display: flex;
+  align-items: center;
   padding: 10px 5px;
   border-radius: 4px;
   cursor: pointer;
   margin-bottom: 8px;
+  gap: 10px;
 }
 
 .stream-item:hover {
@@ -68,7 +70,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin-right: 10px;
+  flex-shrink: 0;
 }
 
 .stream-info {
@@ -76,6 +78,22 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
+}
+
+.stream-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-follow-btn {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.stream-item:hover .sidebar-follow-btn {
+  opacity: 1;
 }
 
 .stream-username {

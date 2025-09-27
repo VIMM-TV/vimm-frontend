@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './MainContent.css';
 import config from '../config';
+import CustomPlayer from './CustomPlayer';
 
 function MainContent({ activeStreams, loading, error, onRefresh }) {
   const [featuredStream, setFeaturedStream] = useState(null);
@@ -34,24 +35,17 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
     return `https://via.placeholder.com/320x180/18181b/ff7c0a?text=${encodeURIComponent(stream.username)}`;
   };
 
-  // Function to get the vimm-core player URL
-  const getPlayerUrl = (stream) => {
-    // Use the config server URL for vimm-core
-    return `${config.core.server}/player.html?user=${encodeURIComponent(stream.username)}`;
-  };
-
-  // Memoize the iframe to prevent re-rendering when props don't actually change
-  const PlayerIframe = useMemo(() => {
+  // Memoize the custom player to prevent re-rendering when props don't actually change
+  const PlayerComponent = useMemo(() => {
     if (!featuredStream) return null;
     
     return (
-      <iframe
+      <CustomPlayer
         key={featuredStream.id} // Use stream ID as key to force re-render only when stream actually changes
-        src={getPlayerUrl(featuredStream)}
-        className="player-iframe"
-        frameBorder="0"
-        allowFullScreen
-        title={`${featuredStream.username}'s stream`}
+        username={featuredStream.username}
+        className="featured-custom-player"
+        onReady={() => console.log(`Player ready for ${featuredStream.username}`)}
+        onError={(error) => console.error(`Player error for ${featuredStream.username}:`, error)}
       />
     );
   }, [featuredStream]);
@@ -96,7 +90,7 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
           </div>
           <div className="featured-stream">
             <div className="featured-player">
-              {PlayerIframe}
+              {PlayerComponent}
             </div>
             <div className="featured-info">
               <div className="featured-streamer">

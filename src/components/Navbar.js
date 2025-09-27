@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import HiveLogin from './auth/HiveLogin';
 import './Navbar.css';
@@ -78,6 +79,7 @@ function Navbar() {
             <span className="username">@{user}</span>
             <div className="dropdown-menu">
               <div className="dropdown-item">Profile</div>
+              <Link to="/stream-key" className="dropdown-item">Stream Key</Link>
               <div className="dropdown-item">Settings</div>
               <div className="dropdown-item" onClick={handleLogout}>Logout</div>
             </div>

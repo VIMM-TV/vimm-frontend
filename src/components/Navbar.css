@@ -134,8 +134,13 @@
 .dropdown-item {
   padding: 10px 15px;
   cursor: pointer;
+  color: #e5e7eb;
+  text-decoration: none;
+  display: block;
 }
 
 .dropdown-item:hover {
   background-color: #3a3a3d;
+  color: #e5e7eb;
+  text-decoration: none;
 }

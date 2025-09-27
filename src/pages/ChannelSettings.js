@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import channelSettingsService from '../services/channelSettingsService';
 import './ChannelSettings.css';
 
 const ChannelSettings = () => {
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { isAuthenticated, user } = useAuth();
   const [settings, setSettings] = useState({
     title: '',
     description: '',

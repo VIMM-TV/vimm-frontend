@@ -129,7 +129,7 @@ class HiveAuthService {
    */
   async authenticateWithServer(username, challenge, signature) {
     try {
-      const response = await fetch(config.core.server + '/api/auth/login', {
+      const response = await fetch(config.core.server + '/api/auth/hive', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

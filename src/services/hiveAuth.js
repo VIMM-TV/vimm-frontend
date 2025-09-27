@@ -61,6 +61,37 @@ class HiveAuthService {
   }
 
   /**
+   * Get challenge from server
+   */
+  async getChallenge() {
+    try {
+      console.log('Requesting challenge from server...'); // Debug log
+      const response = await fetch(config.core.server + '/api/auth/challenge', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get challenge: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Received challenge:', result.challenge); // Debug log
+      
+      if (!result.challenge) {
+        throw new Error('No challenge received from server');
+      }
+
+      return result.challenge;
+    } catch (error) {
+      console.error('Challenge request error:', error);
+      throw new Error('Failed to get authentication challenge from server');
+    }
+  }
+
+  /**
    * Verify auth token with server
    */
   async verifyAuthToken(token) {
@@ -84,7 +115,7 @@ class HiveAuthService {
    * Authenticate with Hive Keychain
    */
   async authenticateWithKeychain(username) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!this.isKeychainAvailable()) {
         reject(new Error('Hive Keychain is not installed. Please install it to authenticate.'));
         return;
@@ -95,32 +126,38 @@ class HiveAuthService {
         return;
       }
 
-      // Generate a challenge message
-      const challenge = `vimm-auth-${Date.now()}-${Math.random()}`;
+      try {
+        // Get challenge from server first
+        const challenge = await this.getChallenge();
+        console.log('Using challenge for signing:', challenge); // Debug log
 
-      // Request signature from Hive Keychain
-      window.hive_keychain.requestSignBuffer(
-        username.toLowerCase().trim(),
-        challenge,
-        'Posting',
-        async (response) => {
-          if (response.success) {
-            try {
-              // Send to server for verification
-              const authResult = await this.authenticateWithServer(
-                username.toLowerCase().trim(),
-                challenge,
-                response.result
-              );
-              resolve(authResult);
-            } catch (error) {
-              reject(error);
+        // Request signature from Hive Keychain
+        window.hive_keychain.requestSignBuffer(
+          username.toLowerCase().trim(),
+          challenge,
+          'Posting',
+          async (response) => {
+            if (response.success) {
+              try {
+                console.log('Keychain signature successful, authenticating with server...'); // Debug log
+                // Send to server for verification
+                const authResult = await this.authenticateWithServer(
+                  username.toLowerCase().trim(),
+                  challenge,
+                  response.result
+                );
+                resolve(authResult);
+              } catch (error) {
+                reject(error);
+              }
+            } else {
+              reject(new Error(response.message || 'Keychain authentication failed'));
             }
-          } else {
-            reject(new Error(response.message || 'Keychain authentication failed'));
           }
-        }
-      );
+        );
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
@@ -129,6 +166,8 @@ class HiveAuthService {
    */
   async authenticateWithServer(username, challenge, signature) {
     try {
+      console.log('Sending authentication request to server...', { username, challenge: challenge.substring(0, 20) + '...' }); // Debug log
+      
       const response = await fetch(config.core.server + '/api/auth/hive', {
         method: 'POST',
         headers: {
@@ -143,6 +182,7 @@ class HiveAuthService {
       });
 
       const result = await response.json();
+      console.log('Server response:', { success: result.success, error: result.error }); // Debug log
 
       if (response.ok && result.success) {
         // Store authentication state
@@ -153,6 +193,8 @@ class HiveAuthService {
         // Store in localStorage
         this.storeAuth(username, result.token);
 
+        console.log('Authentication successful for user:', username); // Debug log
+
         return {
           success: true,
           user: username,
@@ -160,14 +202,15 @@ class HiveAuthService {
           profile: result.profile
         };
       } else {
-        throw new Error(result.error || 'Authentication failed');
+        throw new Error(result.error || result.message || 'Authentication failed');
       }
     } catch (error) {
       console.error('Server authentication error:', error);
-      throw new Error('Authentication failed. Please try again.');
+      throw error; // Re-throw the original error instead of creating a generic one
     }
   }
 
+  // ...existing code...
   /**
    * Initialize authentication from stored data
    */

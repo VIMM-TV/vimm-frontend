@@ -1,23 +1,30 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import FollowButton from './auth/FollowButton';
 import './Sidebar.css';
 
 function Sidebar({ activeStreams }) {
+  const location = useLocation();
+  
   const navLinks = [
-    { name: 'Home', icon: '🏠', link: '/' },
-    { name: 'Directory', icon: '📂', link: '/directory' },
-    { name: 'Following', icon: '❤️', link: '/following' },
-    { name: 'FAQ', icon: '❓', link: '/faq' }
+    { name: 'Home', icon: '🏠', path: '/' },
+    { name: 'Directory', icon: '📂', path: '/directory' },
+    { name: 'Following', icon: '❤️', path: '/following' },
+    { name: 'FAQ', icon: '❓', path: '/faq' }
   ];
 
   return (
     <div className="sidebar">
       <div className="nav-links">
         {navLinks.map(link => (
-          <div key={link.link} className="nav-link">
+          <Link 
+            key={link.name} 
+            to={link.path} 
+            className={`nav-link ${location.pathname === link.path ? 'active' : ''}`}
+          >
             <span className="nav-icon">{link.icon}</span>
             <span className="nav-text">{link.name}</span>
-          </div>
+          </Link>
         ))}
       </div>
       

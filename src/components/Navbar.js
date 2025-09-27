@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import HiveLogin from './auth/HiveLogin';
 import './Navbar.css';
@@ -8,6 +8,7 @@ function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated, user, logout, loading } = useAuth();
+  const navigate = useNavigate();
   
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -15,8 +16,13 @@ function Navbar() {
   
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Handle search logic here
-    console.log('Searching for:', searchQuery);
+    if (searchQuery.trim()) {
+      // Navigate to directory page with search query
+      navigate(`/directory?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      // Navigate to directory page without search
+      navigate('/directory');
+    }
   };
 
   const handleLogin = () => {
@@ -46,7 +52,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <div className="logo">VIMM</div>
+        <Link to="/" className="logo">VIMM</Link>
       </div>
       
       <div className="navbar-center">

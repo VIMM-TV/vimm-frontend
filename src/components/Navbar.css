@@ -28,6 +28,13 @@
   font-size: 24px;
   font-weight: bold;
   color: #ff7c0a;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.logo:hover {
+  color: #ffaa3a;
+  text-decoration: none;
   cursor: pointer;
 }
 

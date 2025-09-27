@@ -8,6 +8,9 @@ import MainContent from './components/MainContent';
 import WatchPage from './pages/WatchPage';
 import StreamKeyGenerator from './pages/StreamKeyGenerator';
 import ChannelSettings from './pages/ChannelSettings';
+import Directory from './pages/Directory';
+import Following from './pages/Following';
+import FAQ from './pages/FAQ';
 import config from './config/default';
 
 function AppContent() {
@@ -19,6 +22,8 @@ function AppContent() {
   
   const location = useLocation();
   const isWatchPage = location.pathname === '/watch';
+  const hideSidebarPaths = ['/watch'];
+  const shouldHideSidebar = hideSidebarPaths.includes(location.pathname);
   
   // Fetch streams from API
   const fetchStreams = useCallback(async () => {
@@ -107,7 +112,7 @@ function AppContent() {
     <div className="App">
       <Navbar />
       <div className={`content-container ${isWatchPage ? 'watch-mode' : ''}`}>
-        {!isWatchPage && <Sidebar activeStreams={sidebarStreams} />}
+        {!shouldHideSidebar && <Sidebar activeStreams={sidebarStreams} />}
         <Routes>
           <Route 
             path="/" 
@@ -120,6 +125,9 @@ function AppContent() {
               />
             } 
           />
+          <Route path="/directory" element={<Directory />} />
+          <Route path="/following" element={<Following />} />
+          <Route path="/faq" element={<FAQ />} />
           <Route path="/watch" element={<WatchPage />} />
           <Route path="/stream-key" element={<StreamKeyGenerator />} />
           <Route path="/settings" element={<ChannelSettings />} />

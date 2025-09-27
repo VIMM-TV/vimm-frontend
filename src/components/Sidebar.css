@@ -19,10 +19,24 @@
   margin-bottom: 5px;
   border-radius: 4px;
   cursor: pointer;
+  text-decoration: none;
+  color: #efeff1;
+  transition: background-color 0.2s ease;
 }
 
 .nav-link:hover {
   background-color: #26262c;
+  color: #efeff1;
+  text-decoration: none;
+}
+
+.nav-link.active {
+  background-color: #6441a4;
+  color: white;
+}
+
+.nav-link.active:hover {
+  background-color: #7c4dbd;
 }
 
 .nav-icon {

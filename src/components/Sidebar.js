@@ -14,7 +14,7 @@ function Sidebar({ activeStreams }) {
     <div className="sidebar">
       <div className="nav-links">
         {navLinks.map(link => (
-          <div key={link.name} className="nav-link" onClick={() => window.location.href=link.link}>
+          <div key={link.link} className="nav-link">
             <span className="nav-icon">{link.icon}</span>
             <span className="nav-text">{link.name}</span>
           </div>

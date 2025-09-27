@@ -28,7 +28,10 @@ class HiveAuthService {
       const token = localStorage.getItem('vimm-auth-token');
       
       if (user && token) {
+        console.log('Found stored auth for user:', user);
         return { user, token };
+      } else {
+        console.log('No stored auth found');
       }
     } catch (error) {
       console.error('Error reading stored auth:', error);
@@ -43,6 +46,7 @@ class HiveAuthService {
     try {
       localStorage.setItem('vimm-auth-user', user);
       localStorage.setItem('vimm-auth-token', token);
+      console.log('Stored auth for user:', user);
     } catch (error) {
       console.error('Error storing auth:', error);
     }
@@ -55,6 +59,7 @@ class HiveAuthService {
     try {
       localStorage.removeItem('vimm-auth-user');
       localStorage.removeItem('vimm-auth-token');
+      console.log('Cleared stored auth');
     } catch (error) {
       console.error('Error clearing stored auth:', error);
     }
@@ -96,17 +101,27 @@ class HiveAuthService {
    */
   async verifyAuthToken(token) {
     try {
+      console.log('Verifying auth token...');
       const response = await fetch(config.core.server + '/api/auth/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        }
+        },
+        timeout: 10000 // 10 second timeout
       });
       
-      return response.ok;
+      const isValid = response.ok;
+      console.log('Token verification result:', isValid);
+      return isValid;
     } catch (error) {
       console.error('Token verification error:', error);
+      // If there's a network error, we can't be sure the token is invalid
+      // So we'll assume it's still valid to avoid logging out users unnecessarily
+      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+        console.warn('Network error during token verification, assuming token is still valid');
+        return true; // Assume valid on network errors
+      }
       return false;
     }
   }
@@ -215,28 +230,39 @@ class HiveAuthService {
    * Initialize authentication from stored data
    */
   async initializeAuth() {
+    console.log('Initializing authentication...');
     const stored = this.getStoredAuth();
     
     if (stored) {
-      // Verify the stored token is still valid
-      const isValid = await this.verifyAuthToken(stored.token);
+      console.log('Restoring authentication for user:', stored.user);
       
-      if (isValid) {
-        this.isAuthenticated = true;
-        this.currentUser = stored.user;
-        this.authToken = stored.token;
-        
-        return {
-          success: true,
-          user: stored.user,
-          token: stored.token
-        };
-      } else {
-        // Token is invalid, clear stored auth
-        this.clearStoredAuth();
-      }
+      // Restore authentication state from stored data
+      this.isAuthenticated = true;
+      this.currentUser = stored.user;
+      this.authToken = stored.token;
+      
+      // Verify the stored token is still valid in the background
+      // Don't block initialization on this check
+      this.verifyAuthToken(stored.token).then(isValid => {
+        if (!isValid) {
+          console.log('Stored token is invalid, logging out...');
+          this.logout();
+        } else {
+          console.log('Token verified successfully');
+        }
+      }).catch(error => {
+        console.warn('Token verification failed, but keeping user logged in:', error);
+        // Keep user logged in even if verification fails (network issues, etc.)
+      });
+      
+      return {
+        success: true,
+        user: stored.user,
+        token: stored.token
+      };
     }
     
+    console.log('No stored authentication found');
     return { success: false };
   }
 
@@ -244,6 +270,9 @@ class HiveAuthService {
    * Logout user
    */
   async logout() {
+    // Store the current token before clearing it
+    const currentToken = this.authToken;
+
     // Clear authentication state
     this.isAuthenticated = false;
     this.currentUser = null;
@@ -254,11 +283,11 @@ class HiveAuthService {
 
     // Optionally notify server of logout
     try {
-      if (this.authToken) {
+      if (currentToken) {
         await fetch(config.core.server + '/api/auth/logout', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.authToken}`
+            'Authorization': `Bearer ${currentToken}`
           }
         });
       }
@@ -279,6 +308,19 @@ class HiveAuthService {
       user: this.currentUser,
       token: this.authToken
     };
+  }
+
+  /**
+   * Check if user is currently authenticated (includes checking stored auth)
+   */
+  isUserAuthenticated() {
+    if (this.isAuthenticated) {
+      return true;
+    }
+    
+    // Check if we have stored auth that hasn't been loaded yet
+    const stored = this.getStoredAuth();
+    return !!stored;
   }
 
   /**

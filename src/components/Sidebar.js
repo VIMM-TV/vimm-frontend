@@ -4,18 +4,17 @@ import './Sidebar.css';
 
 function Sidebar({ activeStreams }) {
   const navLinks = [
-    { name: 'Home', icon: '🏠' },
-    { name: 'Directory', icon: '📂' },
-    { name: 'Following', icon: '❤️' },
-    { name: 'FAQ', icon: '❓' },
-    { name: 'Settings', icon: '⚙️' }
+    { name: 'Home', icon: '🏠', link: '/' },
+    { name: 'Directory', icon: '📂', link: '/directory' },
+    { name: 'Following', icon: '❤️', link: '/following' },
+    { name: 'FAQ', icon: '❓', link: '/faq' }
   ];
 
   return (
     <div className="sidebar">
       <div className="nav-links">
         {navLinks.map(link => (
-          <div key={link.name} className="nav-link">
+          <div key={link.name} className="nav-link" onClick={() => window.location.href=link.link}>
             <span className="nav-icon">{link.icon}</span>
             <span className="nav-text">{link.name}</span>
           </div>

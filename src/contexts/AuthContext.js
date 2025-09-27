@@ -102,9 +102,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        console.log('AuthContext: Starting authentication initialization...');
         const result = await hiveAuthService.initializeAuth();
         
         if (result.success) {
+          console.log('AuthContext: Authentication initialized successfully for user:', result.user);
           dispatch({
             type: AUTH_ACTIONS.INITIALIZE_SUCCESS,
             payload: {
@@ -112,16 +114,30 @@ export function AuthProvider({ children }) {
               token: result.token
             }
           });
+          
+          // Start periodic token verification for restored sessions
+          hiveAuthService.startTokenVerification();
         } else {
+          console.log('AuthContext: No stored authentication found');
           dispatch({ type: AUTH_ACTIONS.INITIALIZE_COMPLETE });
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('AuthContext: Auth initialization error:', error);
         dispatch({ type: AUTH_ACTIONS.INITIALIZE_COMPLETE });
       }
     };
 
-    initializeAuth();
+    // Add a small delay to ensure localStorage is ready
+    const timeoutId = setTimeout(initializeAuth, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  // Cleanup effect to stop token verification when component unmounts
+  useEffect(() => {
+    return () => {
+      hiveAuthService.stopTokenVerification();
+    };
   }, []);
 
   // Login function
@@ -139,6 +155,9 @@ export function AuthProvider({ children }) {
         }
       });
 
+      // Start periodic token verification
+      hiveAuthService.startTokenVerification();
+
       return { success: true };
     } catch (error) {
       dispatch({
@@ -153,6 +172,9 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
+      // Stop periodic token verification
+      hiveAuthService.stopTokenVerification();
+      
       await hiveAuthService.logout();
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
       return { success: true };

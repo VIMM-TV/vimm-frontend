@@ -24,17 +24,36 @@ class HiveAuthService {
    */
   getStoredAuth() {
     try {
+      // Check if localStorage is available
+      if (typeof Storage === 'undefined' || !window.localStorage) {
+        console.warn('localStorage is not available');
+        return null;
+      }
+
       const user = localStorage.getItem('vimm-auth-user');
       const token = localStorage.getItem('vimm-auth-token');
       
-      if (user && token) {
+      if (user && token && user.trim() && token.trim()) {
         console.log('Found stored auth for user:', user);
-        return { user, token };
+        
+        // Basic validation of token format (should be a non-empty string)
+        if (typeof token === 'string' && token.length > 10) {
+          return { user: user.trim(), token: token.trim() };
+        } else {
+          console.warn('Stored token appears invalid, clearing storage');
+          this.clearStoredAuth();
+        }
       } else {
-        console.log('No stored auth found');
+        console.log('No valid stored auth found');
       }
     } catch (error) {
       console.error('Error reading stored auth:', error);
+      // Try to clear potentially corrupted data
+      try {
+        this.clearStoredAuth();
+      } catch (clearError) {
+        console.error('Failed to clear corrupted auth data:', clearError);
+      }
     }
     return null;
   }
@@ -44,11 +63,35 @@ class HiveAuthService {
    */
   storeAuth(user, token) {
     try {
-      localStorage.setItem('vimm-auth-user', user);
-      localStorage.setItem('vimm-auth-token', token);
+      // Check if localStorage is available
+      if (typeof Storage === 'undefined' || !window.localStorage) {
+        console.warn('localStorage is not available, cannot store auth');
+        return;
+      }
+
+      // Validate inputs
+      if (!user || !token || typeof user !== 'string' || typeof token !== 'string') {
+        console.error('Invalid user or token provided for storage');
+        return;
+      }
+
+      localStorage.setItem('vimm-auth-user', user.trim());
+      localStorage.setItem('vimm-auth-token', token.trim());
       console.log('Stored auth for user:', user);
+      
+      // Verify storage worked
+      const storedUser = localStorage.getItem('vimm-auth-user');
+      const storedToken = localStorage.getItem('vimm-auth-token');
+      
+      if (storedUser !== user.trim() || storedToken !== token.trim()) {
+        console.error('Storage verification failed - data may not have been saved correctly');
+      }
     } catch (error) {
       console.error('Error storing auth:', error);
+      // If storage fails, we should probably alert the user
+      if (error.name === 'QuotaExceededError') {
+        console.error('localStorage quota exceeded - user sessions may not persist');
+      }
     }
   }
 
@@ -57,9 +100,23 @@ class HiveAuthService {
    */
   clearStoredAuth() {
     try {
+      // Check if localStorage is available
+      if (typeof Storage === 'undefined' || !window.localStorage) {
+        console.warn('localStorage is not available');
+        return;
+      }
+
       localStorage.removeItem('vimm-auth-user');
       localStorage.removeItem('vimm-auth-token');
       console.log('Cleared stored auth');
+      
+      // Verify clearing worked
+      const remainingUser = localStorage.getItem('vimm-auth-user');
+      const remainingToken = localStorage.getItem('vimm-auth-token');
+      
+      if (remainingUser || remainingToken) {
+        console.warn('Failed to completely clear stored auth data');
+      }
     } catch (error) {
       console.error('Error clearing stored auth:', error);
     }
@@ -102,27 +159,41 @@ class HiveAuthService {
   async verifyAuthToken(token) {
     try {
       console.log('Verifying auth token...');
+      
+      // Create a timeout controller for the fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(config.core.server + '/api/auth/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        timeout: 10000 // 10 second timeout
+        signal: controller.signal
       });
       
+      clearTimeout(timeoutId);
       const isValid = response.ok;
       console.log('Token verification result:', isValid);
-      return isValid;
+      return { isValid, networkError: false };
     } catch (error) {
       console.error('Token verification error:', error);
-      // If there's a network error, we can't be sure the token is invalid
-      // So we'll assume it's still valid to avoid logging out users unnecessarily
-      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+      
+      // Check for network-related errors
+      const isNetworkError = error.name === 'TypeError' || 
+                           error.name === 'AbortError' ||
+                           error.message.includes('fetch') ||
+                           error.message.includes('network') ||
+                           error.code === 'NETWORK_ERROR';
+      
+      if (isNetworkError) {
         console.warn('Network error during token verification, assuming token is still valid');
-        return true; // Assume valid on network errors
+        return { isValid: true, networkError: true };
       }
-      return false;
+      
+      // For non-network errors, consider token invalid
+      return { isValid: false, networkError: false };
     }
   }
 
@@ -243,16 +314,18 @@ class HiveAuthService {
       
       // Verify the stored token is still valid in the background
       // Don't block initialization on this check
-      this.verifyAuthToken(stored.token).then(isValid => {
-        if (!isValid) {
-          console.log('Stored token is invalid, logging out...');
+      this.verifyAuthToken(stored.token).then(result => {
+        if (!result.isValid && !result.networkError) {
+          console.log('Stored token is invalid (not a network error), logging out...');
           this.logout();
-        } else {
+        } else if (result.isValid && !result.networkError) {
           console.log('Token verified successfully');
+        } else {
+          console.log('Token verification skipped due to network error, keeping user logged in');
         }
       }).catch(error => {
-        console.warn('Token verification failed, but keeping user logged in:', error);
-        // Keep user logged in even if verification fails (network issues, etc.)
+        console.warn('Token verification failed with unexpected error, keeping user logged in:', error);
+        // Keep user logged in even if verification fails with unexpected errors
       });
       
       return {
@@ -333,6 +406,67 @@ class HiveAuthService {
       };
     }
     return {};
+  }
+
+  /**
+   * Refresh authentication token
+   */
+  async refreshToken() {
+    if (!this.isAuthenticated || !this.currentUser) {
+      console.log('Cannot refresh token: user not authenticated');
+      return { success: false };
+    }
+
+    try {
+      console.log('Refreshing authentication token for user:', this.currentUser);
+      
+      // Re-authenticate with the current user
+      const result = await this.authenticateWithKeychain(this.currentUser);
+      
+      if (result.success) {
+        console.log('Token refreshed successfully');
+        return { success: true, token: result.token };
+      } else {
+        console.error('Token refresh failed');
+        return { success: false };
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Start periodic token verification
+   */
+  startTokenVerification() {
+    // Clear any existing interval
+    if (this.verificationInterval) {
+      clearInterval(this.verificationInterval);
+    }
+
+    // Verify token every 30 minutes
+    this.verificationInterval = setInterval(async () => {
+      if (this.isAuthenticated && this.authToken) {
+        console.log('Performing periodic token verification...');
+        const result = await this.verifyAuthToken(this.authToken);
+        
+        if (!result.isValid && !result.networkError) {
+          console.log('Periodic verification failed: token is invalid');
+          this.logout();
+        }
+      }
+    }, 30 * 60 * 1000); // 30 minutes
+  }
+
+  /**
+   * Stop periodic token verification
+   */
+  stopTokenVerification() {
+    if (this.verificationInterval) {
+      clearInterval(this.verificationInterval);
+      this.verificationInterval = null;
+    }
   }
 }
 

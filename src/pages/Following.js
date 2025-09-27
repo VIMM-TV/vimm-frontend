@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import FollowButton from '../components/auth/FollowButton';
-import { getFollowedChannels } from '../services/followService';
+import followService from '../services/followService';
 import config from '../config/default';
 import './Following.css';
 
@@ -24,8 +24,8 @@ function Following() {
         setLoading(true);
         setError(null);
 
-        // Get followed channels from local storage/service
-        const followed = await getFollowedChannels(user);
+        // Get followed channels from follow service
+        const followed = await followService.getFollowing();
         setFollowedChannels(followed);
 
         if (followed.length === 0) {

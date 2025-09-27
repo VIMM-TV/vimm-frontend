@@ -80,7 +80,7 @@ function Navbar() {
             <div className="dropdown-menu">
               <div className="dropdown-item">Profile</div>
               <Link to="/stream-key" className="dropdown-item">Stream Key</Link>
-              <div className="dropdown-item">Settings</div>
+              <Link to="/settings" className="dropdown-item">Channel Settings</Link>
               <div className="dropdown-item" onClick={handleLogout}>Logout</div>
             </div>
           </div>

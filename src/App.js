@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
 import WatchPage from './pages/WatchPage';
 import StreamKeyGenerator from './pages/StreamKeyGenerator';
+import ChannelSettings from './pages/ChannelSettings';
 import config from './config/default';
 
 function AppContent() {
@@ -121,6 +122,7 @@ function AppContent() {
           />
           <Route path="/watch" element={<WatchPage />} />
           <Route path="/stream-key" element={<StreamKeyGenerator />} />
+          <Route path="/settings" element={<ChannelSettings />} />
         </Routes>
       </div>
     </div>

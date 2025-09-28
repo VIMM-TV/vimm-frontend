@@ -1,6 +1,6 @@
 .channel-settings {
   padding: var(--spacing-xl);
-  max-width: 800px;
+  overflow: auto;
   margin: 0 auto;
   min-height: 100vh;
   background-color: var(--color-background);

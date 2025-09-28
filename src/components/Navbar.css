@@ -140,7 +140,7 @@
   display: none;
   position: absolute;
   right: 0;
-  top: calc(100% + var(--spacing-sm));
+  top: 100%;
   background-color: var(--color-surface-elevated);
   border-radius: var(--radius-md);
   width: 150px;

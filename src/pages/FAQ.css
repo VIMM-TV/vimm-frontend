@@ -2,6 +2,7 @@
   padding: var(--spacing-xl);
   margin: 0 auto;
   overflow: auto;
+  width: 100%;
 }
 
 .faq-header {

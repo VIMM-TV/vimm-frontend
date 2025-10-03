@@ -138,7 +138,7 @@ function StreamKeyGenerator() {
     }
 
     try {
-      // Get current authorities to preserve them
+      // Get current authorities to check if already exists
       const response = await fetch('https://api.openhive.network', {
         method: 'POST',
         headers: {
@@ -161,22 +161,21 @@ function StreamKeyGenerator() {
         return;
       }
       
-      // Request authority update
-      window.hive_keychain.requestUpdateAuth(
+      // Request to add account authority using the correct Keychain method
+      window.hive_keychain.requestAddAccountAuthority(
         user,
-        'posting',
-        {
-          account_auths: [...posting.account_auths, [POSTER_ACCOUNT, posting.weight_threshold]],
-          key_auths: posting.key_auths,
-          weight_threshold: posting.weight_threshold
-        },
+        POSTER_ACCOUNT,
+        'Posting',
+        posting.weight_threshold,
         response => {
           if (response.success) {
             setHasPostingAuth(true);
             setError(null);
             alert(`Successfully granted posting authority to @${POSTER_ACCOUNT}`);
+            // Recheck posting auth to update UI
+            checkPostingAuth();
           } else {
-            setError('Failed to grant posting authority: ' + response.message);
+            setError('Failed to grant posting authority: ' + (response.message || 'Unknown error'));
           }
         }
       );

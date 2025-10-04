@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MainContent.css';
 import config from '../config';
 import CustomPlayer from './CustomPlayer';
@@ -6,6 +7,7 @@ import CustomPlayer from './CustomPlayer';
 function MainContent({ activeStreams, loading, error, onRefresh }) {
   const [featuredStream, setFeaturedStream] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const navigate = useNavigate();
 
   // Memoize the stream data to prevent unnecessary re-renders
   const memoizedStreams = useMemo(() => {
@@ -122,8 +124,8 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
           <div className="streams-grid">
             {memoizedStreams.map(stream => (
               <div key={stream.id} className="stream-card" onClick={() => {
-                // Change featured stream when clicking on a stream card
-                changeFeaturedStream(stream);
+                // Navigate to watch page with the stream username
+                navigate(`/watch?user=${stream.username}`);
               }}>
                 <div className="stream-thumbnail-container">
                   <img 

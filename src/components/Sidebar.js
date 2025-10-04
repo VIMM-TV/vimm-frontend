@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import FollowButton from './auth/FollowButton';
 import './Sidebar.css';
 
 function Sidebar({ activeStreams }) {
   const location = useLocation();
+  const navigate = useNavigate();
   
   const navLinks = [
     { name: 'Home', icon: '🏠', path: '/' },
@@ -34,7 +35,9 @@ function Sidebar({ activeStreams }) {
         <h3 className="section-title">Active Streams</h3>
         <div className="active-streams">
           {activeStreams.map(stream => (
-            <div key={stream.id} className="stream-item">
+            <div key={stream.id} className="stream-item" onClick={() => {
+              navigate(`/watch?user=${stream.username}`);
+            }}>
               <img 
                 src={stream.avatar} 
                 alt={`${stream.username}'s avatar`} 

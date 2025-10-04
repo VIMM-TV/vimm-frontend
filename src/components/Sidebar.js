@@ -40,11 +40,11 @@ function Sidebar({ activeStreams }) {
               <img 
                 src={stream.avatar} 
                 alt={`${stream.username}'s avatar`} 
-                className="stream-avatar" 
+                className="sbstream-avatar" 
               />
-              <div className="stream-info">
-                <div className="stream-username">{stream.username}</div>
-                <div className="stream-category">{stream.game || stream.category || 'Just Chatting'}</div>
+              <div className="sbstream-info">
+                <div className="sbstream-username">{stream.username}</div>
+                <div className="sbstream-category">{stream.game || stream.category || 'Just Chatting'}</div>
                 <div className="stream-viewers">{stream.viewers} viewers</div>
               </div>
             </div>

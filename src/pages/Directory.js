@@ -169,7 +169,7 @@ function Directory() {
 
   const handleStreamClick = (stream) => {
     // Navigate to watch page with stream details
-    window.location.href = `/watch?channel=${stream.username}`;
+    window.location.href = `/watch?user=${stream.username}`;
   };
 
   if (loading) {

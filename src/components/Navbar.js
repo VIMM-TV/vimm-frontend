@@ -52,7 +52,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <Link to="/" className="logo"><img src="/logo.svg" alt="VIMM Logo" /> VIMM</Link>
+        <Link to="/" className="logo"><img src="/logo.svg" alt="VIMM Logo" className="logo-image" /> VIMM</Link>
       </div>
       
       <div className="navbar-center">

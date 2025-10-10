@@ -208,7 +208,7 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         hlsRef.current = null;
       }
     };
-  }, [streamUrl, token, getAuthHeaders, onReady]);
+  }, [streamUrl, token, getAuthHeaders, onReady, onError]);
 
   // Handle play/pause
   const togglePlayPause = useCallback(() => {

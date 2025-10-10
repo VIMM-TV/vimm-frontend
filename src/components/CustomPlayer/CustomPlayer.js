@@ -1,8 +1,10 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Hls from 'hls.js';
+import { useAuth } from '../../contexts/AuthContext';
 import './CustomPlayer.css';
 
 function CustomPlayer({ username, className, style, onReady, onError }) {
+  const { token, getAuthHeaders } = useAuth();
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,11 +40,28 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         setIsLoading(true);
         setError(null);
         
-        // Use the API endpoint specified in the requirements
-        const response = await fetch(`https://www.vimm.tv/api/streams/path/${encodeURIComponent(username)}?type=hiveAccount`);
+        // Get authentication headers
+        const authHeaders = getAuthHeaders();
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch stream: ${response.status}`);
+        // Use the API endpoint specified in the requirements
+        const response = await fetch(`https://www.vimm.tv/api/streams/path/${encodeURIComponent(username)}?type=hiveAccount`, {
+          headers: {
+            ...authHeaders
+          }
+        });
+        
+        // Handle authentication errors
+        if (response && (response.status === 401 || response.status === 403)) {
+          setError('Authentication required. Please log in to view this stream.');
+          setIsLoading(false);
+          if (onError) {
+            onError(new Error('Authentication required'));
+          }
+          return;
+        }
+        
+        if (!response || !response.ok) {
+          throw new Error(`Failed to fetch stream: ${response ? response.status : 'Network error'}`);
         }
         
         const data = await response.json();
@@ -74,7 +93,7 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
     };
 
     fetchStreamUrl();
-  }, [username, onError]);
+  }, [username, getAuthHeaders, onError]);
 
   // Initialize HLS player
   useEffect(() => {
@@ -104,7 +123,14 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
       const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        backBufferLength: 90
+        backBufferLength: 90,
+        xhrSetup: function(xhr, url) {
+          // Add authentication token to all HLS segment requests
+          const authHeaders = getAuthHeaders();
+          if (authHeaders.Authorization) {
+            xhr.setRequestHeader('Authorization', authHeaders.Authorization);
+          }
+        }
       });
       
       hlsRef.current = hls;
@@ -131,10 +157,25 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
       
       hls.on(Hls.Events.ERROR, (event, data) => {
         console.error('HLS Error:', data);
+        
+        // Check for authentication errors (401/403)
+        if (data.response && (data.response.code === 401 || data.response.code === 403)) {
+          setError('Authentication expired. Please log in again to continue watching.');
+          if (onError) {
+            onError(new Error('Authentication required'));
+          }
+          return;
+        }
+        
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              setError('Network error - please check your connection');
+              // Check if this is an auth error
+              if (data.response && (data.response.code === 401 || data.response.code === 403)) {
+                setError('Authentication expired. Please log in again to continue watching.');
+              } else {
+                setError('Network error - please check your connection');
+              }
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               setError('Media error - unable to play video');
@@ -167,7 +208,7 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         hlsRef.current = null;
       }
     };
-  }, [streamUrl, onReady]);
+  }, [streamUrl, token, getAuthHeaders, onReady]);
 
   // Handle play/pause
   const togglePlayPause = useCallback(() => {

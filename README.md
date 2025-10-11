@@ -24,7 +24,6 @@ VIMM Frontend is part of a larger ecosystem of components:
 - Stream settings configuration
 - Real-time stream statistics
 - Quality profile selection
-- Chat moderation tools
 
 ### Chat Integration
 - Real-time chat interface
@@ -42,30 +41,38 @@ VIMM Frontend is part of a larger ecosystem of components:
 
 ### User Interface
 - Responsive design
-- Dark/light theme support
-- Customizable layouts
 - Mobile-friendly interface
-- Accessibility features
 
 ## Architecture
 
 ```
 src/
-├── components/        # Reusable UI components
-│   ├── stream/
-│   ├── chat/
-│   └── hive/
-├── pages/            # Application pages
-│   ├── home/
-│   ├── stream/
-│   └── dashboard/
-├── services/         # Integration services
-│   ├── core/
-│   ├── chat/
-│   └── hive/
-├── hooks/            # Custom React hooks
-├── utils/            # Utility functions
-└── config/           # Configuration management
+├── components/          # Reusable UI components
+│   ├── Navbar.js       # Top navigation bar
+│   ├── Sidebar.js      # Live streams sidebar
+│   ├── MainContent.js  # Main content area with featured stream
+│   ├── auth/           # Authentication and logged in components
+│   │   ├── HiveLogin.js
+│   │   └── FollowButton.js
+│   └── CustomPlayer/   # Video player component
+│       └── CustomPlayer.js
+├── pages/              # Application pages
+│   ├── Directory.js    # Stream directory/browse page
+│   ├── Following.js    # Following page for logged-in users
+│   ├── WatchPage.js    # Individual stream watch page
+│   ├── StreamKeyGenerator.js  # Stream key management
+│   ├── ChannelSettings.js     # Channel configuration
+│   └── FAQ.js
+├── services/           # API integration services
+│   ├── hiveAuth.js
+│   ├── followService.js
+│   └── channelSettingsService.js
+├── contexts/           # React context providers
+│   └── AuthContext.js  # Authentication state management
+└── config/             # Configuration files
+    ├── default.js      # Default configuration
+    ├── environment.js  # Environment-specific config
+    └── index.js
 ```
 
 ## Development Status
@@ -74,11 +81,11 @@ This project is currently in early development. We are actively working on the c
 
 ## Technology Stack
 
-- React
-- TypeScript
-- Tailwind CSS
-- WebRTC/HLS players
-- WebSocket clients
+- React 19
+- React Router v6
+- HLS.js for video playback
+- Axios for HTTP requests
+- CSS3 for styling
 
 ## License
 

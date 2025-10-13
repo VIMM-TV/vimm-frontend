@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './WatchPage.css';
 import config from '../config/default';
@@ -11,6 +11,15 @@ function WatchPage() {
   const [isLandscape, setIsLandscape] = useState(false);
   
   const username = searchParams.get('user');
+
+  // Memoize player callbacks to prevent recreating on every render
+  const handlePlayerReady = useCallback(() => {
+    console.log('Player ready');
+  }, []);
+
+  const handlePlayerError = useCallback((error) => {
+    console.error('Player error:', error);
+  }, []);
 
   // Detect mobile and orientation
   useEffect(() => {
@@ -81,8 +90,8 @@ function WatchPage() {
             <CustomPlayer
               username={username}
               className="player-iframe"
-              onReady={() => console.log('Player ready')}
-              onError={(error) => console.error('Player error:', error)}
+              onReady={handlePlayerReady}
+              onError={handlePlayerError}
             />
             {isMobile && (
               <button 

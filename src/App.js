@@ -90,19 +90,28 @@ function AppContent() {
   }, [isInitialLoad]);
 
   useEffect(() => {
-    // Initial fetch
-    fetchStreams();
+    // Skip fetching streams entirely if we're on the watch page
+    if (isWatchPage && isInitialLoad) {
+      setIsInitialLoad(false);
+      setLoading(false);
+      return;
+    }
+    
+    // Initial fetch only if not already loaded and not on watch page
+    if (isInitialLoad) {
+      fetchStreams();
+    }
     
     // Set up polling to refresh sidebar streams periodically
     // Don't poll when on watch page to prevent player reinitialization
     const interval = setInterval(() => {
-      if (!isInitialLoad && !isWatchPage) {
+      if (!isWatchPage) {
         fetchStreams();
       }
     }, 30000); // Refresh every 30 seconds
     
     return () => clearInterval(interval);
-  }, [fetchStreams, isInitialLoad, isWatchPage]);
+  }, [isWatchPage, isInitialLoad, fetchStreams]);
 
   // Function to refresh main content manually
   const refreshMainContent = useCallback(() => {

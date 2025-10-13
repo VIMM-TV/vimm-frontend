@@ -19,11 +19,18 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
   const [hlsToken, setHlsToken] = useState(null);
   const [tokenExpiry, setTokenExpiry] = useState(null);
   const tokenRefreshTimer = useRef(null);
+  
+  // Store callbacks in refs to avoid dependency changes
+  const onReadyRef = useRef(onReady);
+  const onErrorRef = useRef(onError);
+  
+  useEffect(() => {
+    onReadyRef.current = onReady;
+    onErrorRef.current = onError;
+  }, [onReady, onError]);
 
-  // Get the base URL from current domain
-  const getBaseUrl = useCallback(() => {
-    return `${window.location.protocol}//${window.location.host}`;
-  }, []);
+  // Get the base URL from current domain (memoized to avoid recreating)
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
 
   // Hide controls after inactivity
   const hideControlsTimeout = useRef(null);
@@ -41,7 +48,6 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
   // Fetch HLS token for the stream
   const fetchHlsToken = useCallback(async (streamIdToFetch) => {
     try {
-      const baseUrl = getBaseUrl();
       const response = await fetch(`${baseUrl}/api/hls/token/${streamIdToFetch}`, {
         method: 'POST',
         headers: {
@@ -75,17 +81,16 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
     } catch (err) {
       console.error('Failed to fetch HLS token:', err);
       setError('Failed to load stream encryption token');
-      if (onError) {
-        onError(err);
+      if (onErrorRef.current) {
+        onErrorRef.current(err);
       }
     }
     return null;
-  }, [onError, getBaseUrl]);
+  }, [baseUrl]);
 
   // Refresh HLS token
   const refreshHlsToken = useCallback(async (oldToken) => {
     try {
-      const baseUrl = getBaseUrl();
       const response = await fetch(`${baseUrl}/api/hls/refresh-token`, {
         method: 'POST',
         headers: {
@@ -122,7 +127,7 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         fetchHlsToken(streamId);
       }
     }
-  }, [streamId, fetchHlsToken, getBaseUrl]);
+  }, [streamId, fetchHlsToken, baseUrl]);
 
   // Fetch stream URL from API
   useEffect(() => {
@@ -132,8 +137,6 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
       try {
         setIsLoading(true);
         setError(null);
-        
-        const baseUrl = getBaseUrl();
         
         // Use the API endpoint to get stream info (no authentication required)
         const response = await fetch(`${baseUrl}/api/streams/path/${encodeURIComponent(username)}?type=hiveAccount`);
@@ -168,8 +171,8 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         // This will show the player interface even when the API is not available
         setStreamUrl('demo');
         
-        if (onError) {
-          onError(err);
+        if (onErrorRef.current) {
+          onErrorRef.current(err);
         }
       }
     };
@@ -182,7 +185,7 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         clearTimeout(tokenRefreshTimer.current);
       }
     };
-  }, [username, onError, fetchHlsToken, getBaseUrl]);
+  }, [username, baseUrl, fetchHlsToken]);
 
   // Initialize HLS player
   useEffect(() => {
@@ -202,8 +205,8 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         { index: 3, height: 360, name: '360p' }
       ]);
       
-      if (onReady) {
-        onReady();
+      if (onReadyRef.current) {
+        onReadyRef.current();
       }
       return;
     }
@@ -240,8 +243,8 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
         }));
         setQualities(levels);
         
-        if (onReady) {
-          onReady();
+        if (onReadyRef.current) {
+          onReadyRef.current();
         }
       });
       

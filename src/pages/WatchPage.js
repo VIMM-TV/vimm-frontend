@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './WatchPage.css';
-import config from '../config/default';
 import CustomPlayer from '../components/CustomPlayer';
 import UpvoteButton from '../components/UpvoteButton';
+import Chat from '../components/Chat';
 import streamService from '../services/streamService';
 
 function WatchPage() {
@@ -97,12 +97,6 @@ function WatchPage() {
       document.exitFullscreen().catch(console.error);
     }
   }, [isFullscreen, isMobile, isLandscape]);
-
-  // Generate chat URL
-  const chatUrl = useMemo(() => {
-    if (!username) return null;
-    return `${config.chat.server}${config.chat.embedPath.replace(':hiveAccount', encodeURIComponent(username))}`;
-  }, [username]);
 
   if (!username) {
     return (
@@ -201,14 +195,7 @@ function WatchPage() {
 
         {/* Chat Container */}
         <div className="chat-container">
-          <div className="chat-iframe-container">
-            <iframe
-              src={chatUrl}
-              className="chat-iframe"
-              frameBorder="0"
-              title={`${username}'s chat`}
-            />
-          </div>
+          <Chat hiveAccount={username} />
         </div>
       </div>
     </div>

@@ -96,11 +96,22 @@ function Chat({ hiveAccount }) {
         );
         
         if (messageExists) {
+          console.log('Duplicate message detected, skipping');
           return prevMessages;
         }
         
         return [...prevMessages, data];
       });
+    });
+
+    // Listen for message acknowledgment
+    socketRef.current.on('message-sent', (data) => {
+      console.log('Message acknowledgment received:', data);
+    });
+
+    // Listen for any other events (debugging)
+    socketRef.current.onAny((eventName, ...args) => {
+      console.log('Socket.IO event received:', eventName, args);
     });
 
     socketRef.current.on('connect_error', (err) => {
@@ -132,30 +143,59 @@ function Chat({ hiveAccount }) {
       return;
     }
 
+    const messageText = inputMessage.trim();
+    const username = user?.username || user?.hiveAccount;
+
     try {
       setSending(true);
 
+      // Clear input immediately for better UX
+      setInputMessage('');
+
       // Send via REST API for persistence
-      const result = await chatService.sendMessage(hiveAccount, inputMessage, token);
+      const result = await chatService.sendMessage(hiveAccount, messageText, token);
       
       console.log('Message sent successfully:', result);
 
-      // Broadcast via Socket.IO for immediate real-time delivery to all clients
-      if (socketRef.current && socketRef.current.connected) {
-        socketRef.current.emit('chat-message', {
-          room,
-          username: user?.username || user?.hiveAccount,
-          message: inputMessage,
-          hiveAccount: hiveAccount,
-          timestamp: new Date().toISOString()
+      // Add message to local state immediately
+      // The socket broadcast should handle this, but we add it as fallback
+      if (result.data) {
+        setMessages((prevMessages) => {
+          // Check if message already exists
+          const messageExists = prevMessages.some(
+            msg => msg.id === result.data.id
+          );
+          
+          if (messageExists) {
+            console.log('Message already in state');
+            return prevMessages;
+          }
+          
+          console.log('Adding message to local state');
+          return [...prevMessages, result.data];
         });
       }
 
-      // Clear input
-      setInputMessage('');
+      // ALSO broadcast via Socket.IO to notify other clients
+      // (The server should also do this, but we do it for redundancy)
+      if (socketRef.current && socketRef.current.connected) {
+        console.log('Broadcasting message via Socket.IO to room:', room);
+        socketRef.current.emit('chat-message', {
+          room: room,
+          username: username,
+          message: messageText,
+          hiveAccount: hiveAccount,
+          timestamp: result.data?.timestamp || new Date().toISOString(),
+          id: result.data?.id
+        });
+      } else {
+        console.warn('Socket not connected, message not broadcast to other clients');
+      }
     } catch (err) {
       console.error('Error sending message:', err);
       alert(err.message || 'Failed to send message. Please try again.');
+      // Restore message on error
+      setInputMessage(messageText);
     } finally {
       setSending(false);
     }

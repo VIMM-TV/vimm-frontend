@@ -4,7 +4,7 @@
 const defaultConfig = {
   // vimm-chat server configuration
   chat: {
-    server: 'https://www.vimm.tv', // Default local development server
+    server: 'https://chat.vimm.tv', // Default local development server
     endpoints: {
       socket: '/socket.io', // Socket.IO connection
       messages: '/api/chat/messages/:hiveAccount', // Get/post chat messages 

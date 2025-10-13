@@ -3,14 +3,47 @@ import { useSearchParams } from 'react-router-dom';
 import './WatchPage.css';
 import config from '../config/default';
 import CustomPlayer from '../components/CustomPlayer';
+import streamService from '../services/streamService';
 
 function WatchPage() {
   const [searchParams] = useSearchParams();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [streamInfo, setStreamInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   const username = searchParams.get('user');
+
+  // Fetch stream/channel information
+  useEffect(() => {
+    const fetchStreamInfo = async () => {
+      if (!username) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const info = await streamService.getStreamInfo(username);
+        setStreamInfo(info);
+      } catch (error) {
+        console.error('Failed to fetch stream info:', error);
+        // Set default info on error
+        setStreamInfo({
+          username,
+          title: `${username}'s Stream`,
+          description: 'Welcome to the stream!',
+          isLive: false,
+          category: 'General'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStreamInfo();
+  }, [username]);
 
   // Memoize player callbacks to prevent recreating on every render
   const handlePlayerReady = useCallback(() => {
@@ -115,22 +148,45 @@ function WatchPage() {
               <div className="stream-details">
                 <h1 className="stream-username">{username}</h1>
                 <div className="stream-status">
-                  <span className="live-indicator">🔴 LIVE</span>
+                  <span className="live-indicator">
+                    {streamInfo?.isLive ? '🔴 LIVE' : '⚫ OFFLINE'}
+                  </span>
+                  {streamInfo?.viewers !== undefined && streamInfo.viewers > 0 && (
+                    <span className="viewer-count">{streamInfo.viewers} viewers</span>
+                  )}
                 </div>
               </div>
             </div>
             
-            {/* Example additional content that might cause scrolling */}
-            <div className="stream-description">
-              <h3>Stream Description</h3>
-              <p>Welcome to my stream! Today we're exploring new features and having a great time with the community.</p>
-            </div>
+            {/* Stream Title and Description */}
+            {loading ? (
+              <div className="stream-description">
+                <p>Loading stream information...</p>
+              </div>
+            ) : (
+              <>
+                {streamInfo?.title && streamInfo.title !== `${username}'s Stream` && (
+                  <div className="stream-title">
+                    <h2>{streamInfo.title}</h2>
+                  </div>
+                )}
+                <div className="stream-description">
+                  <h3>Stream Description</h3>
+                  <p>{streamInfo?.description || 'Welcome to the stream!'}</p>
+                </div>
+              </>
+            )}
             
             <div className="stream-tags">
-              <span className="stream-tag">Gaming</span>
-              <span className="stream-tag">Live</span>
-              <span className="stream-tag">Interactive</span>
-              <span className="stream-tag">Community</span>
+              {streamInfo?.category && (
+                <span className="stream-tag">{streamInfo.category}</span>
+              )}
+              {streamInfo?.isLive && (
+                <span className="stream-tag">Live</span>
+              )}
+              {streamInfo?.language && (
+                <span className="stream-tag">{streamInfo.language}</span>
+              )}
             </div>
           </div>
         </div>

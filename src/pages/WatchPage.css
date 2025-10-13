@@ -23,7 +23,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0; /* Ensures flex child can shrink below content size */
-  overflow: hidden;
+  overflow-y: auto; /* Allow scrolling the entire container */
+  overflow-x: hidden;
 }
 
 .watch-page.desktop .chat-container {
@@ -38,7 +39,11 @@
 }
 
 .watch-page.mobile .stream-container {
-  flex-shrink: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Allow scrolling the entire container */
+  overflow-x: hidden;
 }
 
 .watch-page.mobile .chat-container {
@@ -55,27 +60,29 @@
 
 /* Desktop specific stream player sizing - 80% of available height */
 .watch-page.desktop .stream-player {
-  flex: 0 0 80%; /* Take 80% of container height */
-  height: 0; /* Reset height to let flex handle it */
+  flex: 0 0 auto; /* Don't grow or shrink */
+  aspect-ratio: 16/9;
+  width: 100%;
+  /* Remove max-height to allow natural sizing */
 }
 
-/* Desktop stream info section - 20% of available height */
+/* Desktop stream info section - remaining space */
 .watch-page.desktop .stream-info {
-  flex: 0 0 20%; /* Take 20% of container height */
-  overflow-y: auto; /* Make scrollable if content overflows */
-  min-height: 0;
+  flex: 0 0 auto; /* Take natural content height */
+  overflow: visible; /* No separate scrolling, container handles it */
 }
 
 /* Mobile specific stream player sizing */
 .watch-page.mobile .stream-player {
   aspect-ratio: 16/9;
-  flex: none;
+  flex: 0 0 auto;
+  width: 100%;
 }
 
-/* Mobile stream info - auto size */
+/* Mobile stream info - natural content height */
 .watch-page.mobile .stream-info {
-  flex: none;
-  overflow: visible;
+  flex: 0 0 auto;
+  overflow: visible; /* No separate scrolling, container handles it */
 }
 
 .player-iframe {
@@ -138,6 +145,7 @@
 .stream-status {
   display: flex;
   align-items: center;
+  gap: var(--spacing-md);
 }
 
 .live-indicator {
@@ -150,11 +158,38 @@
   text-transform: uppercase;
 }
 
+.viewer-count {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Stream Title */
+.stream-title {
+  margin-top: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stream-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
 /* Additional stream info content (if you want to add more info later) */
 .stream-description {
   margin-top: var(--spacing-lg);
   color: var(--color-text-primary);
   line-height: 1.5;
+}
+
+.stream-description h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--color-text-primary);
 }
 
 .stream-tags {

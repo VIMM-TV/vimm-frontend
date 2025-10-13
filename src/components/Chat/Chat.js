@@ -99,6 +99,8 @@ function Chat({ hiveAccount }) {
       console.log('✅ Connected to chat server');
       console.log('Socket ID:', socketRef.current.id);
       console.log('Joining room:', room);
+      console.log('Auth token available:', !!token);
+      console.log('Token value:', token ? `${token.substring(0, 20)}...` : 'null/undefined');
       socketRef.current.emit('join-room', { room, token });
       setConnected(true);
       setError(null);
@@ -177,9 +179,17 @@ function Chat({ hiveAccount }) {
       console.log('✅ Message acknowledgment received:', data);
     });
 
+    // Listen for authentication errors
+    socketRef.current.on('auth-error', (data) => {
+      console.error('❌ Authentication error:', data);
+      setError(data.error || 'Authentication failed');
+      setConnected(false);
+    });
+
     // Listen for error events from server
     socketRef.current.on('error', (error) => {
       console.error('❌ Socket.IO error from server:', error);
+      setError(typeof error === 'string' ? error : error.message || 'An error occurred');
     });
 
     // Cleanup on unmount

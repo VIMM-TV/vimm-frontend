@@ -99,7 +99,7 @@ function Chat({ hiveAccount }) {
       console.log('✅ Connected to chat server');
       console.log('Socket ID:', socketRef.current.id);
       console.log('Joining room:', room);
-      socketRef.current.emit('join-room', room);
+      socketRef.current.emit('join-room', { room, token });
       setConnected(true);
       setError(null);
     });
@@ -191,7 +191,7 @@ function Chat({ hiveAccount }) {
         socketRef.current = null;
       }
     };
-  }, [hiveAccount, room]);
+  }, [hiveAccount, room, token]);
 
   // Auto-scroll when new messages arrive
   useEffect(() => {

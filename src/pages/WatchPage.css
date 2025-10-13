@@ -331,14 +331,14 @@
 @media (min-width: 769px) and (max-width: 1200px) {
   .watch-page.desktop .chat-container {
     width: 300px;
-    height: calc(100vh - 60px);
+    height: 100%;
   }
 }
 
 @media (min-width: 1201px) {
   .watch-page.desktop .chat-container {
     width: 380px;
-    height: calc(100vh - 60px);
+    height: 100%;
   }
 }
 

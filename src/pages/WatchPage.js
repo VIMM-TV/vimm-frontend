@@ -137,14 +137,6 @@ function WatchPage() {
               </button>
             )}
           </div>
-
-          {/* Upvote Button */}
-          <div className="upvote-container">
-            <UpvoteButton 
-              username={username} 
-              permlink={streamInfo?.permlink}
-            />
-          </div>
           
           {/* Stream Info */}
           <div className="stream-info">
@@ -164,6 +156,13 @@ function WatchPage() {
                     <span className="viewer-count">{streamInfo.viewers} viewers</span>
                   )}
                 </div>
+              </div>
+              {/* Upvote Button */}
+              <div className="upvote-container">
+                <UpvoteButton 
+                  username={username} 
+                  permlink={streamInfo?.permlink}
+                />
               </div>
             </div>
             

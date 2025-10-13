@@ -8,7 +8,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #e50914, #c71111);
+  background: linear-gradient(135deg, var(--color-primary), #e56b00);
   color: white;
   border: none;
   border-radius: 8px;
@@ -16,13 +16,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 124, 10, 0.3);
 }
 
 .upvote-button:hover:not(.disabled) {
-  background: linear-gradient(135deg, #f40612, #d81219);
+  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 170, 0, 0.4);
 }
 
 .upvote-button:active:not(.disabled) {
@@ -106,7 +106,7 @@
 
 .percentage-display {
   font-weight: 700;
-  color: #e50914;
+  color: var(--color-primary);
   font-size: 16px;
 }
 
@@ -126,33 +126,33 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #e50914;
+  background: var(--color-primary);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(229, 9, 20, 0.4);
+  box-shadow: 0 2px 6px rgba(255, 124, 10, 0.4);
 }
 
 .vote-slider::-webkit-slider-thumb:hover {
   width: 22px;
   height: 22px;
-  box-shadow: 0 3px 8px rgba(229, 9, 20, 0.6);
+  box-shadow: 0 3px 8px rgba(255, 170, 0, 0.6);
 }
 
 .vote-slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #e50914;
+  background: var(--color-primary);
   cursor: pointer;
   border: none;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(229, 9, 20, 0.4);
+  box-shadow: 0 2px 6px rgba(255, 124, 10, 0.4);
 }
 
 .vote-slider::-moz-range-thumb:hover {
   width: 22px;
   height: 22px;
-  box-shadow: 0 3px 8px rgba(229, 9, 20, 0.6);
+  box-shadow: 0 3px 8px rgba(255, 170, 0, 0.6);
 }
 
 /* Quick Select Buttons */
@@ -180,8 +180,8 @@
 }
 
 .quick-select-btn.active {
-  background: #e50914;
-  border-color: #e50914;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -189,7 +189,7 @@
 .confirm-vote-btn {
   width: 100%;
   padding: 10px;
-  background: linear-gradient(135deg, #e50914, #c71111);
+  background: linear-gradient(135deg, var(--color-primary), #e56b00);
   color: white;
   border: none;
   border-radius: 8px;
@@ -200,7 +200,7 @@
 }
 
 .confirm-vote-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f40612, #d81219);
+  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
   transform: translateY(-1px);
 }
 

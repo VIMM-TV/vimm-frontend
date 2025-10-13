@@ -61,14 +61,20 @@ function Chat({ hiveAccount }) {
   useEffect(() => {
     if (!hiveAccount) return;
 
+    console.log('Initializing Socket.IO connection to:', config.chat.server);
+
     // Initialize socket connection
     socketRef.current = io(config.chat.server, {
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
     });
 
     // Connection event handlers
     socketRef.current.on('connect', () => {
       console.log('Connected to chat server');
+      console.log('Joining room:', room);
       socketRef.current.emit('join-room', room);
       setConnected(true);
       setError(null);
@@ -81,7 +87,20 @@ function Chat({ hiveAccount }) {
 
     // Listen for new messages
     socketRef.current.on('chat-message', (data) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
+      console.log('Received chat message via socket:', data);
+      setMessages((prevMessages) => {
+        // Avoid duplicates - check if message already exists
+        const messageExists = prevMessages.some(
+          msg => msg.id === data.id || 
+          (msg.timestamp === data.timestamp && msg.username === data.username && msg.message === data.message)
+        );
+        
+        if (messageExists) {
+          return prevMessages;
+        }
+        
+        return [...prevMessages, data];
+      });
     });
 
     socketRef.current.on('connect_error', (err) => {
@@ -93,6 +112,7 @@ function Chat({ hiveAccount }) {
     // Cleanup on unmount
     return () => {
       if (socketRef.current) {
+        console.log('Cleaning up socket connection');
         socketRef.current.disconnect();
         socketRef.current = null;
       }
@@ -116,15 +136,18 @@ function Chat({ hiveAccount }) {
       setSending(true);
 
       // Send via REST API for persistence
-      await chatService.sendMessage(hiveAccount, inputMessage, token);
+      const result = await chatService.sendMessage(hiveAccount, inputMessage, token);
+      
+      console.log('Message sent successfully:', result);
 
-      // Also broadcast via Socket.IO for immediate display
-      if (socketRef.current) {
+      // Broadcast via Socket.IO for immediate real-time delivery to all clients
+      if (socketRef.current && socketRef.current.connected) {
         socketRef.current.emit('chat-message', {
           room,
           username: user?.username || user?.hiveAccount,
           message: inputMessage,
-          hiveAccount: hiveAccount
+          hiveAccount: hiveAccount,
+          timestamp: new Date().toISOString()
         });
       }
 

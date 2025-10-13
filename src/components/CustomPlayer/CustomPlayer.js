@@ -515,4 +515,4 @@ function CustomPlayer({ username, className, style, onReady, onError }) {
   );
 }
 
-export default CustomPlayer;
+export default React.memo(CustomPlayer);

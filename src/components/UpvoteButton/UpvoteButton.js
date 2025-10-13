@@ -84,10 +84,6 @@ function UpvoteButton({ username, permlink }) {
     setVotePercentage(percentage);
   };
 
-  if (!permlink) {
-    return null; // Don't show button if there's no post to upvote
-  }
-
   return (
     <div 
       className="upvote-button-container" 
@@ -95,10 +91,14 @@ function UpvoteButton({ username, permlink }) {
       onMouseEnter={handleMouseEnter}
     >
       <button
-        className={`upvote-button ${hasVoted ? 'voted' : ''} ${!isAuthenticated ? 'disabled' : ''}`}
+        className={`upvote-button ${hasVoted ? 'voted' : ''} ${!isAuthenticated || !permlink ? 'disabled' : ''}`}
         onClick={handleUpvote}
-        disabled={isVoting || !isAuthenticated}
-        title={!isAuthenticated ? 'Log in to upvote' : 'Upvote this stream'}
+        disabled={isVoting || !isAuthenticated || !permlink}
+        title={
+          !permlink ? 'Stream post not available' :
+          !isAuthenticated ? 'Log in to upvote' : 
+          'Upvote this stream'
+        }
       >
         <svg 
           viewBox="0 0 24 24" 

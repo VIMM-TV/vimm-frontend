@@ -26,7 +26,8 @@ class StreamService {
             description: 'No stream information available.',
             isLive: false,
             viewers: 0,
-            category: 'General'
+            category: 'General',
+            permlink: null
           };
         }
         throw new Error(`Failed to fetch stream path: ${pathResponse.status}`);
@@ -53,7 +54,8 @@ class StreamService {
             description: 'No stream information available.',
             isLive: false,
             viewers: 0,
-            category: 'General'
+            category: 'General',
+            permlink: null
           };
         }
         throw new Error(`Failed to fetch stream info: ${response.status}`);
@@ -84,7 +86,8 @@ class StreamService {
         description: 'Welcome to the stream!',
         isLive: false,
         viewers: 0,
-        category: 'General'
+        category: 'General',
+        permlink: null
       };
     }
   }

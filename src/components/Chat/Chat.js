@@ -61,7 +61,10 @@ function Chat({ hiveAccount }) {
   useEffect(() => {
     if (!hiveAccount) return;
 
-    console.log('Initializing Socket.IO connection to:', config.chat.server);
+    console.log('=== SOCKET.IO INITIALIZATION ===');
+    console.log('Server:', config.chat.server);
+    console.log('Room:', room);
+    console.log('Timestamp:', new Date().toISOString());
 
     // Initialize socket connection
     socketRef.current = io(config.chat.server, {
@@ -71,23 +74,74 @@ function Chat({ hiveAccount }) {
       reconnectionAttempts: 5
     });
 
+    // Log ALL events for debugging
+    socketRef.current.onAny((eventName, ...args) => {
+      console.log('=== SOCKET.IO EVENT RECEIVED ===');
+      console.log('Event:', eventName);
+      console.log('Data:', args);
+      console.log('Timestamp:', new Date().toISOString());
+      console.log('===============================');
+    });
+
+    // Log outgoing events
+    const originalEmit = socketRef.current.emit;
+    socketRef.current.emit = function(eventName, ...args) {
+      console.log('=== SOCKET.IO EVENT SENT ===');
+      console.log('Event:', eventName);
+      console.log('Data:', args);
+      console.log('Timestamp:', new Date().toISOString());
+      console.log('===========================');
+      return originalEmit.apply(this, [eventName, ...args]);
+    };
+
     // Connection event handlers
     socketRef.current.on('connect', () => {
-      console.log('Connected to chat server');
+      console.log('✅ Connected to chat server');
+      console.log('Socket ID:', socketRef.current.id);
       console.log('Joining room:', room);
       socketRef.current.emit('join-room', room);
       setConnected(true);
       setError(null);
     });
 
-    socketRef.current.on('disconnect', () => {
-      console.log('Disconnected from chat server');
+    socketRef.current.on('disconnect', (reason) => {
+      console.log('❌ Disconnected from chat server');
+      console.log('Reason:', reason);
       setConnected(false);
+    });
+
+    socketRef.current.on('connect_error', (err) => {
+      console.error('❌ Socket connection error:', err);
+      console.log('Error message:', err.message);
+      console.log('Error type:', err.type);
+      setConnected(false);
+    });
+
+    socketRef.current.on('connect_timeout', () => {
+      console.error('❌ Socket connection timeout');
+    });
+
+    socketRef.current.on('reconnect', (attemptNumber) => {
+      console.log('🔄 Reconnected to chat server');
+      console.log('Attempt number:', attemptNumber);
+    });
+
+    socketRef.current.on('reconnect_attempt', (attemptNumber) => {
+      console.log('🔄 Attempting to reconnect...');
+      console.log('Attempt number:', attemptNumber);
+    });
+
+    socketRef.current.on('reconnect_error', (err) => {
+      console.error('❌ Reconnection error:', err);
+    });
+
+    socketRef.current.on('reconnect_failed', () => {
+      console.error('❌ Failed to reconnect to chat server');
     });
 
     // Listen for new messages (primary event)
     socketRef.current.on('chat-message', (data) => {
-      console.log('Received chat-message event:', data);
+      console.log('📨 Received chat-message event:', data);
       setMessages((prevMessages) => {
         // Avoid duplicates - check if message already exists
         const messageExists = prevMessages.some(
@@ -96,53 +150,43 @@ function Chat({ hiveAccount }) {
         );
         
         if (messageExists) {
-          console.log('Duplicate message detected, skipping');
+          console.log('⚠️ Duplicate message detected, skipping');
           return prevMessages;
         }
         
-        console.log('Adding received message to state');
+        console.log('✅ Adding received message to state');
         return [...prevMessages, data];
       });
     });
 
     // Listen for alternative message events
     socketRef.current.on('message', (data) => {
-      console.log('Received message event:', data);
+      console.log('📨 Received message event:', data);
     });
 
     socketRef.current.on('new-message', (data) => {
-      console.log('Received new-message event:', data);
+      console.log('📨 Received new-message event:', data);
     });
 
     socketRef.current.on('newMessage', (data) => {
-      console.log('Received newMessage event:', data);
+      console.log('📨 Received newMessage event:', data);
     });
 
     // Listen for message acknowledgment
     socketRef.current.on('message-sent', (data) => {
-      console.log('Message acknowledgment received:', data);
+      console.log('✅ Message acknowledgment received:', data);
     });
 
     // Listen for error events from server
     socketRef.current.on('error', (error) => {
-      console.error('Socket.IO error from server:', error);
-    });
-
-    // Listen for any other events (debugging)
-    socketRef.current.onAny((eventName, ...args) => {
-      console.log('Socket.IO event received:', eventName, args);
-    });
-
-    socketRef.current.on('connect_error', (err) => {
-      console.error('Socket connection error:', err);
-      setConnected(false);
-      // Don't set error state for connection issues to avoid blocking UI
+      console.error('❌ Socket.IO error from server:', error);
     });
 
     // Cleanup on unmount
     return () => {
       if (socketRef.current) {
-        console.log('Cleaning up socket connection');
+        console.log('🧹 Cleaning up socket connection');
+        console.log('Disconnecting from room:', room);
         socketRef.current.disconnect();
         socketRef.current = null;
       }
@@ -171,11 +215,16 @@ function Chat({ hiveAccount }) {
       // Clear input immediately for better UX
       setInputMessage('');
 
+      console.log('📤 Sending message via REST API');
+      console.log('Channel:', hiveAccount);
+      console.log('Message:', messageText);
+      console.log('Username:', username);
+
       // Send via REST API for persistence
       // The server should automatically broadcast this to all connected Socket.IO clients
       const result = await chatService.sendMessage(hiveAccount, messageText, token);
       
-      console.log('Message sent successfully:', result);
+      console.log('✅ Message sent successfully:', result);
       console.log('Server should broadcast this message to all clients in room:', room);
 
       // Add message to local state immediately
@@ -188,17 +237,17 @@ function Chat({ hiveAccount }) {
           );
           
           if (messageExists) {
-            console.log('Message already in state');
+            console.log('⚠️ Message already in state');
             return prevMessages;
           }
           
-          console.log('Adding sent message to local state');
+          console.log('✅ Adding sent message to local state');
           return [...prevMessages, result.data];
         });
       }
 
     } catch (err) {
-      console.error('Error sending message:', err);
+      console.error('❌ Error sending message:', err);
       alert(err.message || 'Failed to send message. Please try again.');
       // Restore message on error
       setInputMessage(messageText);

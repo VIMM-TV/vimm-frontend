@@ -4,12 +4,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0; /* Critical for flex children */
   background-color: var(--color-surface);
   color: var(--color-text-primary);
 }
 
 .chat-messages-container {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0; /* Critical for flex children with overflow */
   overflow-y: auto;
   padding: var(--spacing-md);
   display: flex;
@@ -104,6 +106,7 @@
 }
 
 .chat-input-container {
+  flex-shrink: 0; /* Prevent input from shrinking */
   padding: var(--spacing-md);
   border-top: 1px solid var(--color-border);
   background-color: var(--color-background);

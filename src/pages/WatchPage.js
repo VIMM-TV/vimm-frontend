@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import './WatchPage.css';
 import config from '../config/default';
 import CustomPlayer from '../components/CustomPlayer';
+import UpvoteButton from '../components/UpvoteButton';
 import streamService from '../services/streamService';
 
 function WatchPage() {
@@ -135,6 +136,14 @@ function WatchPage() {
                 {isFullscreen ? '⤢' : '⤡'}
               </button>
             )}
+          </div>
+
+          {/* Upvote Button */}
+          <div className="upvote-container">
+            <UpvoteButton 
+              username={username} 
+              permlink={streamInfo?.permlink}
+            />
           </div>
           
           {/* Stream Info */}

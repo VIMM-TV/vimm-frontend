@@ -43,7 +43,8 @@ class StreamService {
         language: data.language,
         thumbnail: data.thumbnail,
         startTime: data.startTime,
-        streamPath: data.streamPath
+        streamPath: data.streamPath,
+        permlink: data.permlink || data.postPermlink
       };
     } catch (error) {
       console.error('Error fetching stream info:', error);

@@ -85,9 +85,9 @@ function Chat({ hiveAccount }) {
       setConnected(false);
     });
 
-    // Listen for new messages
+    // Listen for new messages (primary event)
     socketRef.current.on('chat-message', (data) => {
-      console.log('Received chat message via socket:', data);
+      console.log('Received chat-message event:', data);
       setMessages((prevMessages) => {
         // Avoid duplicates - check if message already exists
         const messageExists = prevMessages.some(
@@ -100,13 +100,32 @@ function Chat({ hiveAccount }) {
           return prevMessages;
         }
         
+        console.log('Adding received message to state');
         return [...prevMessages, data];
       });
+    });
+
+    // Listen for alternative message events
+    socketRef.current.on('message', (data) => {
+      console.log('Received message event:', data);
+    });
+
+    socketRef.current.on('new-message', (data) => {
+      console.log('Received new-message event:', data);
+    });
+
+    socketRef.current.on('newMessage', (data) => {
+      console.log('Received newMessage event:', data);
     });
 
     // Listen for message acknowledgment
     socketRef.current.on('message-sent', (data) => {
       console.log('Message acknowledgment received:', data);
+    });
+
+    // Listen for error events from server
+    socketRef.current.on('error', (error) => {
+      console.error('Socket.IO error from server:', error);
     });
 
     // Listen for any other events (debugging)
@@ -153,12 +172,14 @@ function Chat({ hiveAccount }) {
       setInputMessage('');
 
       // Send via REST API for persistence
+      // The server should automatically broadcast this to all connected Socket.IO clients
       const result = await chatService.sendMessage(hiveAccount, messageText, token);
       
       console.log('Message sent successfully:', result);
+      console.log('Server should broadcast this message to all clients in room:', room);
 
       // Add message to local state immediately
-      // The socket broadcast should handle this, but we add it as fallback
+      // This ensures the sender sees their message right away
       if (result.data) {
         setMessages((prevMessages) => {
           // Check if message already exists
@@ -171,26 +192,11 @@ function Chat({ hiveAccount }) {
             return prevMessages;
           }
           
-          console.log('Adding message to local state');
+          console.log('Adding sent message to local state');
           return [...prevMessages, result.data];
         });
       }
 
-      // ALSO broadcast via Socket.IO to notify other clients
-      // (The server should also do this, but we do it for redundancy)
-      if (socketRef.current && socketRef.current.connected) {
-        console.log('Broadcasting message via Socket.IO to room:', room);
-        socketRef.current.emit('chat-message', {
-          room: room,
-          username: username,
-          message: messageText,
-          hiveAccount: hiveAccount,
-          timestamp: result.data?.timestamp || new Date().toISOString(),
-          id: result.data?.id
-        });
-      } else {
-        console.warn('Socket not connected, message not broadcast to other clients');
-      }
     } catch (err) {
       console.error('Error sending message:', err);
       alert(err.message || 'Failed to send message. Please try again.');

@@ -105,7 +105,7 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
                   <h3 className="featured-username">{featuredStream.username}</h3>
                   <p className="featured-stream-title">{featuredStream.title}</p>
                   <div className="featured-stats">
-                    <span className="viewer-count">{featuredStream.viewers} viewers</span>
+                    <span className="viewer-counter">{featuredStream.viewers} viewers</span>
                     {featuredStream.category && (
                       <span className="category">{featuredStream.category}</span>
                     )}

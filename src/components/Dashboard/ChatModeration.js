@@ -83,7 +83,7 @@ function ChatModeration({ hiveAccount }) {
     socketRef.current.on('connect', () => {
       console.log('Connected to chat server');
       setConnected(true);
-      socketRef.current.emit('join-room', room);
+      socketRef.current.emit('join-room', { room, token });
     });
 
     socketRef.current.on('disconnect', () => {

@@ -1,7 +1,7 @@
 .streamer-dashboard {
   padding: var(--spacing-xl);
   background-color: var(--color-background);
-  min-height: 100vh;
+  width: 100%;
   overflow-y: auto;
 }
 

@@ -207,7 +207,7 @@ function Directory() {
         <iframe data-aa='2413321' src='//acceptable.a-ads.com/2413321/?size=Adaptive'
           style={{border: 0, padding: 0, width: '70%', height: 'auto', overflow: 'hidden', display: 'block', margin: 'auto'}}></iframe>
       </div>
-      {/* End Advertisement Section */}}
+      {/* End Advertisement Section */}
 
       <div className="directory-controls">
         <div className="search-section">

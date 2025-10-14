@@ -143,7 +143,7 @@ function WatchPage() {
               <div className="stream-details">
                 <h1 className="stream-username">{username}</h1>
                 <div className="stream-status">
-                  <span className="live-indicator">
+                  <span className="live-indicator-badge">
                     {streamInfo?.isLive ? '🔴 LIVE' : '⚫ OFFLINE'}
                   </span>
                   {streamInfo?.viewers !== undefined && streamInfo.viewers > 0 && (

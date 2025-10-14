@@ -1,7 +1,6 @@
 .watch-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   background-color: var(--color-background);
   color: var(--color-text-primary);
   width: 100%;
@@ -157,7 +156,7 @@
   gap: var(--spacing-md);
 }
 
-.live-indicator {
+.live-indicator-badge {
   background-color: var(--color-live);
   color: white;
   padding: var(--spacing-xs) var(--spacing-sm);

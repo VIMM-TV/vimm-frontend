@@ -12,7 +12,6 @@ import StreamSettingsEditor from '../components/Dashboard/StreamSettingsEditor';
 import ChatModeration from '../components/Dashboard/ChatModeration';
 import dashboardService from '../services/dashboardService';
 import streamService from '../services/streamService';
-import channelSettingsService from '../services/channelSettingsService';
 import './StreamerDashboard.css';
 
 function StreamerDashboard() {
@@ -22,11 +21,8 @@ function StreamerDashboard() {
   const [streamInfo, setStreamInfo] = useState(null);
   const [stats, setStats] = useState(null);
   const [followerGrowth, setFollowerGrowth] = useState([]);
-  const [streamSettings, setStreamSettings] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [savingSettings, setSavingSettings] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -54,17 +50,6 @@ function StreamerDashboard() {
       // Load follower growth
       const growth = await dashboardService.getFollowerGrowth(user, token, 7);
       setFollowerGrowth(growth);
-
-      // Load stream settings
-      const settings = await channelSettingsService.getChannelSettings();
-      setStreamSettings({
-        title: settings.title || '',
-        description: settings.description || '',
-        tags: settings.tags || [],
-        language: settings.language || '',
-        contentRating: settings.contentRating || 'general',
-        lastUpdated: settings.lastUpdated || new Date().toISOString()
-      });
 
       setLoading(false);
     } catch (err) {
@@ -95,31 +80,6 @@ function StreamerDashboard() {
 
     return () => clearInterval(interval);
   }, [user, token]);
-
-  // Handle save stream settings
-  const handleSaveSettings = async (newSettings) => {
-    try {
-      setSavingSettings(true);
-      setError(null);
-      setSuccess(null);
-
-      await dashboardService.updateStreamSettings(user, newSettings, token);
-      
-      // Update local state
-      setStreamSettings({
-        ...newSettings,
-        lastUpdated: new Date().toISOString()
-      });
-
-      setSuccess('Stream settings saved successfully!');
-      setTimeout(() => setSuccess(null), 5000);
-    } catch (err) {
-      console.error('Failed to save settings:', err);
-      setError(err.message || 'Failed to save settings. Please try again.');
-    } finally {
-      setSavingSettings(false);
-    }
-  };
 
   // Show loading state
   if (authLoading || loading) {
@@ -161,14 +121,6 @@ function StreamerDashboard() {
         </div>
       )}
 
-      {success && (
-        <div className="alert alert-success">
-          <span className="alert-icon">✅</span>
-          <span className="alert-message">{success}</span>
-          <button className="alert-close" onClick={() => setSuccess(null)}>×</button>
-        </div>
-      )}
-
       <div className="dashboard-grid">
         {/* Top Row: Stream Preview and Live Stats */}
         <div className="dashboard-row">
@@ -193,11 +145,7 @@ function StreamerDashboard() {
             <ChatModeration hiveAccount={user} />
           </div>
           <div className="dashboard-section settings-section">
-            <StreamSettingsEditor
-              initialSettings={streamSettings}
-              onSave={handleSaveSettings}
-              loading={savingSettings}
-            />
+            <StreamSettingsEditor />
           </div>
         </div>
       </div>

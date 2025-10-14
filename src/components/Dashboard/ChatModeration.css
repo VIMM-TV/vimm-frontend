@@ -152,7 +152,7 @@
   font-size: 1rem;
 }
 
-.chat-message {
+.moderation-message {
   background-color: var(--color-surface);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
@@ -161,11 +161,11 @@
   transition: background-color 0.2s ease;
 }
 
-.chat-message:hover {
+.moderation-message:hover {
   background-color: var(--color-surface-elevated);
 }
 
-.chat-message:hover .message-actions {
+.moderation-message:hover .message-actions {
   opacity: 1;
 }
 

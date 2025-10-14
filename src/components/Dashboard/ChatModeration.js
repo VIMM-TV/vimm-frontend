@@ -260,7 +260,7 @@ function ChatModeration({ hiveAccount }) {
           </div>
         ) : (
           filteredMessages.map((msg) => (
-            <div key={msg._id} className="chat-message">
+            <div key={msg._id} className="moderation-message">
               <div className="message-header">
                 <img
                   src={`https://images.hive.blog/u/${msg.username}/avatar`}

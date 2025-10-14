@@ -11,6 +11,7 @@ import ChannelSettings from './pages/ChannelSettings';
 import Directory from './pages/Directory';
 import Following from './pages/Following';
 import FAQ from './pages/FAQ';
+import StreamerDashboard from './pages/StreamerDashboard';
 import config from './config/default';
 
 function AppContent() {
@@ -141,6 +142,7 @@ function AppContent() {
           <Route path="/watch" element={<WatchPage />} />
           <Route path="/stream-key" element={<StreamKeyGenerator />} />
           <Route path="/settings" element={<ChannelSettings />} />
+          <Route path="/dashboard/streamer" element={<StreamerDashboard />} />
         </Routes>
       </div>
     </div>

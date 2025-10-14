@@ -84,6 +84,7 @@ function Navbar() {
             />
             <span className="username">@{user}</span>
             <div className="dropdown-menu">
+              <Link to="/dashboard/streamer" className="dropdown-item">Streamer Dashboard</Link>
               <div className="dropdown-item">Profile</div>
               <Link to="/stream-key" className="dropdown-item">Stream Key</Link>
               <Link to="/settings" className="dropdown-item">Channel Settings</Link>

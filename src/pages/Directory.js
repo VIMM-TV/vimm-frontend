@@ -204,7 +204,7 @@ function Directory() {
 
       {/* Advertisement Section */}
       <div id="frame" style={{width: '100%', margin: 'auto', position: 'relative', zIndex: 99998, marginBottom: 'var(--spacing-xl)'}}>
-        <iframe data-aa='2413321' src='//acceptable.a-ads.com/2413321/?size=Adaptive'
+        <iframe data-aa='2413321' src='//acceptable.a-ads.com/2413321/?size=Adaptive&background_color=0e0e10&title_color=ff7c0a&title_hover_color=fa0&text_color=efeff1&link_color=adadb8&link_hover_color=ff7c0a'
           style={{border: 0, padding: 0, width: '70%', height: 'auto', overflow: 'hidden', display: 'block', margin: 'auto'}}></iframe>
       </div>
       {/* End Advertisement Section */}

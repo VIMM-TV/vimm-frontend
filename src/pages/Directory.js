@@ -43,7 +43,7 @@ function Directory() {
           id: stream.id,
           username: stream.username,
           title: stream.title || 'Untitled Stream',
-          viewers: Math.floor(Math.random() * 2000) + 100,
+          viewers: stream.viewers || 0,
           avatar: `https://images.hive.blog/u/${stream.username}/avatar`,
           thumbnail: stream.thumbnail,
           isLive: stream.isLive,

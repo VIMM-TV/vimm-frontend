@@ -55,7 +55,7 @@ function Following() {
             live.push({
               ...channel,
               ...streamData,
-              viewers: Math.floor(Math.random() * 2000) + 100,
+              viewers: streamData?.viewers || 0,
               thumbnail: streamData.thumbnail || 'https://picsum.photos/320/180?random=' + Math.random(),
               isLive: true
             });

@@ -52,8 +52,8 @@ function UpvoteButton({ username, permlink }) {
       
       window.hive_keychain.requestVote(
         user.username,
-        permlink,
         username,
+        permlink,
         weight,
         (response) => {
           setIsVoting(false);

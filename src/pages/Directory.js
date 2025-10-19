@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import FollowButton from '../components/auth/FollowButton';
 import config from '../config/default';
@@ -15,6 +15,21 @@ function Directory() {
   
   const location = useLocation();
 
+  // Dynamically generate ad URL using CSS variables
+  const adUrl = useMemo(() => {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const getColor = (varName) => rootStyles.getPropertyValue(varName).trim().replace('#', '');
+    
+    const bgColor = getColor('--color-background');
+    const primaryColor = getColor('--color-primary');
+    const primaryHover = getColor('--color-primary-hover');
+    const textColor = getColor('--color-text-primary');
+    const linkColor = getColor('--color-text-secondary');
+    const linkHover = getColor('--color-primary');
+    
+    return `//acceptable.a-ads.com/2413321/?size=Adaptive&background_color=${bgColor}&title_color=${primaryColor}&title_hover_color=${primaryHover}&text_color=${textColor}&link_color=${linkColor}&link_hover_color=${linkHover}`;
+  }, []);
+
   // Get search query from URL parameters or navigation state
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -23,6 +38,18 @@ function Directory() {
       setSearchQuery(searchParam);
     }
   }, [location.search]);
+
+  // Notify A-Ads after component mounts and content loads
+  useEffect(() => {
+    if (!loading && window._aSyncLoad) {
+      // Trigger A-Ads detection after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        if (window._aSyncLoad) {
+          window._aSyncLoad();
+        }
+      }, 100);
+    }
+  }, [loading]);
 
   // Fetch streams from API
   useEffect(() => {
@@ -202,12 +229,23 @@ function Directory() {
         <p>Discover live streams from the VIMM community</p>
       </div>
 
-      {/* Advertisement Section */}
-      <div id="frame" style={{width: '100%', margin: 'auto', position: 'relative', zIndex: 99998, marginBottom: 'var(--spacing-xl)'}}>
-        <iframe data-aa='2413321' src='//acceptable.a-ads.com/2413321/?size=Adaptive&background_color=0e0e10&title_color=ff7c0a&title_hover_color=fa0&text_color=efeff1&link_color=adadb8&link_hover_color=ff7c0a'
-          style={{border: 0, padding: 0, width: '70%', height: 'auto', overflow: 'hidden', display: 'block', margin: 'auto'}}></iframe>
+      {/* ============================================
+          ADVERTISEMENT BLOCK
+          Replace this section with your own ad code
+          Current size: Adaptive (70% width)
+          Colors are dynamically pulled from CSS variables
+          ============================================ */}
+      <div key="ad-frame" id="frame" style={{width: '100%', margin: 'auto', position: 'relative', zIndex: 99998, marginBottom: 'var(--spacing-xl)'}}>
+        <iframe 
+          data-aa='2413321' 
+          src={adUrl}
+          style={{border: 0, padding: 0, width: '70%', height: 'auto', overflow: 'hidden', display: 'block', margin: 'auto'}}
+          title="Advertisement"
+        ></iframe>
       </div>
-      {/* End Advertisement Section */}
+      {/* ============================================
+          END ADVERTISEMENT BLOCK
+          ============================================ */}
 
       <div className="directory-controls">
         <div className="search-section">

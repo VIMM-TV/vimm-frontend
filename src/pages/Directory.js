@@ -39,18 +39,6 @@ function Directory() {
     }
   }, [location.search]);
 
-  // Notify A-Ads after component mounts and content loads
-  useEffect(() => {
-    if (!loading && window._aSyncLoad) {
-      // Trigger A-Ads detection after a short delay to ensure DOM is ready
-      setTimeout(() => {
-        if (window._aSyncLoad) {
-          window._aSyncLoad();
-        }
-      }, 100);
-    }
-  }, [loading]);
-
   // Fetch streams from API
   useEffect(() => {
     const fetchStreams = async () => {
@@ -199,29 +187,6 @@ function Directory() {
     window.location.href = `/watch?user=${stream.username}`;
   };
 
-  if (loading) {
-    return (
-      <div className="directory-container">
-        <div className="directory-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading streams...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="directory-container">
-        <div className="directory-error">
-          <h2>Error Loading Streams</h2>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()}>Try Again</button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="directory-container">
       <div className="directory-header">
@@ -235,7 +200,7 @@ function Directory() {
           Current size: Adaptive (70% width)
           Colors are dynamically pulled from CSS variables
           ============================================ */}
-      <div key="ad-frame" id="frame" style={{width: '100%', margin: 'auto', position: 'relative', zIndex: 99998, marginBottom: 'var(--spacing-xl)'}}>
+      <div id="frame" style={{width: '100%', margin: 'auto', position: 'relative', zIndex: 99998, marginBottom: 'var(--spacing-xl)'}}>
         <iframe 
           data-aa='2413321' 
           src={adUrl}
@@ -246,6 +211,24 @@ function Directory() {
       {/* ============================================
           END ADVERTISEMENT BLOCK
           ============================================ */}
+
+      {loading && (
+        <div className="directory-loading">
+          <div className="loading-spinner"></div>
+          <p>Loading streams...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="directory-error">
+          <h2>Error Loading Streams</h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Try Again</button>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
 
       <div className="directory-controls">
         <div className="search-section">
@@ -327,6 +310,8 @@ function Directory() {
           <h3>No streams found</h3>
           <p>Try adjusting your search criteria or check back later.</p>
         </div>
+      )}
+      </>
       )}
     </div>
   );

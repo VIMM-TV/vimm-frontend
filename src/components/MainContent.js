@@ -9,6 +9,21 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const navigate = useNavigate();
 
+  // Dynamically generate ad URL using CSS variables
+  const adUrl = useMemo(() => {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const getColor = (varName) => rootStyles.getPropertyValue(varName).trim().replace('#', '');
+    
+    const bgColor = getColor('--color-background');
+    const primaryColor = getColor('--color-primary');
+    const primaryHover = getColor('--color-primary-hover');
+    const textColor = getColor('--color-text-primary');
+    const linkColor = getColor('--color-text-secondary');
+    const linkHover = getColor('--color-primary');
+    
+    return `//acceptable.a-ads.com/2413321/?size=Adaptive&background_color=${bgColor}&title_color=${primaryColor}&title_hover_color=${primaryHover}&text_color=${textColor}&link_color=${linkColor}&link_hover_color=${linkHover}`;
+  }, []);
+
   // Memoize the stream data to prevent unnecessary re-renders
   const memoizedStreams = useMemo(() => {
     return activeStreams;
@@ -116,6 +131,24 @@ function MainContent({ activeStreams, loading, error, onRefresh }) {
           </div>
         </div>
       )}
+
+      {/* ============================================
+          ADVERTISEMENT BLOCK
+          Replace this section with your own ad code
+          Current size: Adaptive (70% width)
+          Colors are dynamically pulled from CSS variables
+          ============================================ */}
+      <div id="frame" style={{width: '100%', margin: 'auto', position: 'relative', zIndex: 99998, marginBottom: 'var(--spacing-xl)'}}>
+        <iframe 
+          data-aa='2413321' 
+          src={adUrl}
+          style={{border: 0, padding: 0, width: '70%', height: 'auto', overflow: 'hidden', display: 'block', margin: 'auto'}}
+          title="Advertisement"
+        ></iframe>
+      </div>
+      {/* ============================================
+          END ADVERTISEMENT BLOCK
+          ============================================ */}
 
       {/* All Streams Section */}
       <div className="streams-section">
